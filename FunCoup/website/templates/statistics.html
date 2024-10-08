@@ -1,0 +1,118 @@
+{% include "./header.html" %}
+{% load static %}
+<!-- Here is all information shown on the statistics page.  -->
+<!-- Note that this page needs sourceUrl in the gold standard and evidence config files in order to work. These are used to link to the source of all raw data. -->
+<!-- It also needs plots in the correct location under static to show -->
+<div class="container pt-5">
+  <h2>Statistics</h2>
+  <nav id="navbar-example2" class="navbar bg-light px-3 mb-3">
+      <ul class="nav nav-pills custom-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#scrollspyHeading1">Networks</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#scrollspyHeading2">Coverage</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#scrollspyHeading3">Gold Standards</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#scrollspyHeading4">Evidences</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#scrollspyHeading5">Species</a>
+        </li>
+      </ul>
+    </nav>
+    <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" class="help bg-light p-3 rounded-2" tabindex="0">
+
+      <h4 id="scrollspyHeading1">Networks</h4>
+        <div class="">
+          <img src="{% static 'website/images/statistics/PPVmillionLinks.png' %}"  class="img-fluid" style="display: block; margin: 10px 0; max-width: 50%; padding-top: 20px; padding-bottom: 20px;"></img>
+          <p>Sizes of the summary networks with the strongest links from each class for different ranges of
+          <a href="/help/#framework">final Bayesian scores (FBS)</a>. The fist interval corresponds roughly
+          to a confidence score interval of 0.1 to 0.25, the second interval to 0.25 to 0.75, and the last interval to 0.75 to 1.</p>
+        </div>
+
+
+      <h4 class="pt-5" id="scrollspyHeading2">Coverage</h4>
+        <div class="statFigure">
+          <img src="{% static 'website/images/statistics/ProteomeCoverage.png' %}"   class="img-fluid" style="display: block; margin: 10px 0; max-width: 50%; padding-top: 20px; padding-bottom: 20px;"></img>
+          <p>Number of genes (nodes) in the summary networks of the different species.</p>
+        </div>
+
+      <h4 class="pt-5" id="scrollspyHeading3">Gold Standards</h4>
+        <div class="statFigure">
+          <img src="{% static 'website/images/statistics/GoldStandardLinks.png' %}"  class="img-fluid" style="display: block; margin: 10px 0; max-width: 50%; padding-top: 20px; padding-bottom: 20px;"></img>
+          <p>Contribution of Gold Standard to the networks of each FunCoup species. The number of links is normalized so it sums to 1 per species.</p>
+
+          <img src="{% static 'website/images/statistics/PPVpercentageOrigin.png' %}"  class="img-fluid" style="display: block; margin: 10px 0; max-width: 50%; padding-top: 20px; padding-bottom: 20px;"></img>
+          <p>The percentage of links with Gold Standard- and Evidence-based confidence (PPV). </p>
+
+
+        <table class="table">
+          <colgroup>
+            <col class="species"/>
+            <col class="type"/>
+            <col class="name"/>
+            <col class="download"/>
+          </colgroup>
+          <tr><th>Species</th><th>Type</th><th colspan="2">Data</th></tr>
+            {% for data in instanceGoldStandards %}
+              <tr class="striped">
+                  <td>{{data.species}}</td>
+                  <td class="center"><a href='/help/#{{data.type}}' title="{{data.type}}">{{data.type}}</a></td>
+                  <td>{{data.name}}</td>
+                  <td><a href="{{data.url}}" target=__blank>data source</a></td>
+              </tr>
+            {% endfor %}
+        </table>
+      </div>
+
+
+      <h4 class="pt-5" id="scrollspyHeading4">Evidences</h4>
+        <div class="statFigure">
+          <img src="{% static 'website/images/statistics/LLRevidencePOSITIVE.png' %}"  class="img-fluid" style="display: block; margin: 10px 0; max-width: 50%; padding-top: 20px; padding-bottom: 20px;"></img>
+          <p>Relative impact of the different evidence types as a fraction of the total FBS for the different networks.
+          The different types are:
+          <a href="/help/#DOM">domain interactions (DOM)</a>,
+          <a href="/help/#GIN">genetic interaction profile similarity (GIN)</a>,
+          <a href="/help/#GRG">gene regulation (GRG)</a>,
+          <a href="/help/#MEX">mRNA co-expression (MEX)</a>,
+          <a href="/help/#MIR">co-miRNA regulation by shared miRNA targeting (MIR)</a>,
+          <a href="/help/#PEX">protein co-expression (PEX)</a>,
+          <a href="/help/#PHP">phylogenetic profile similarity (PHP)</a>,
+          <a href="/help/#PPI">protein-protein interaction (PPI)</a>,
+          <a href="/help/#SCL">sub-cellular co-localization (SCL)</a>, and 
+          <a href="/help/#TFB">shared transcription factor binding (TFB)</a>.</p>
+
+        <table class="table">
+          <colgroup>
+            <col class="species"/>
+            <col class="type"/>
+            <col class="name"/>
+            <col class="download"/>
+          </colgroup>
+          <tr><th>Species</th><th>Type</th><th colspan="2">Data</th></tr>
+            {% for data in instanceData %}
+              <tr class="striped">
+                  <td>{{data.species}}</td>
+                  <td class="center"><a href='/help/#{{data.type}}' title="{{data.type}}">{{data.type}}</a></td>
+                  <td>{{data.name}}</td>
+                  <td><a href="{{data.url}}" target=__blank>data source</a></td>
+              </tr>
+            {% endfor %}
+        </table>
+        </div>
+
+      <h4 class="pt-5" id="scrollspyHeading5">Species</h4>
+        <div class="statFigure">
+          <img src="{% static 'website/images/statistics/LLRspeciesContributionPOSITIVE.png' %}"  class="img-fluid" style="display: block; margin: 10px 0; max-width: 50%; padding-top: 20px; padding-bottom: 20px;"></img>
+          <p>Relative impact of the evidence from the different species as a fraction of the total FBS.
+          For most species more than 50% of the evidence comes from other species.</p>
+      </div>
+
+    </div>
+</div>
+
+{% include "./footer.html" %}

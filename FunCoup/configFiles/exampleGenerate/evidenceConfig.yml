@@ -1,0 +1,222 @@
+DOM:
+  species: ['9606','10090','3702','83333','224308','9913','10116','559292','9031','7227','7955','7719','9615','6239','36329','284812','39947','9823','44689','243232','273057','83332']
+  version:  'UniDomInt_v1.0'
+  scoring_method: 'avg(wUniDomInt)m/N_boxcox_MinMax'
+  url: http://sonnhammer.org/download/UniDomInt/UniDomInt.tsv
+  sourceUrl: http://sonnhammer.org/download/UniDomInt/
+
+GIN:
+  # species: ['83333','559292']
+  # file_name: ['babu2014_clean.tsv.gz',['sgadata_costanzo2010_correlations.txt.gz','Costanzo_2017.gz']]
+  # file_columns: [[0,1,2],[[0,2,4],[0,1,2]]]
+  # version: ['babu2014',['costanzo2010','costanzo2017']]
+  # scoring_method: 'precomputed_pearsonCorrelation_MinMax'
+  sourceUrl: https://downloads.thebiogrid.org/
+  url: https://downloads.thebiogrid.org/Download/BioGRID/Release-Archive/BIOGRID-4.4.219/BIOGRID-ORGANISM-4.4.219.mitab.zip
+  species_name: ['Escherichia_coli_K12_W3110','Mus_musculus','Saccharomyces_cerevisiae_S288c', 'Homo_sapiens',
+                'Drosophila_melanogaster','Arabidopsis_thaliana_Columbia', 'Schizosaccharomyces_pombe_972h','Caenorhabditis_elegans',
+                'Rattus_norvegicus','Plasmodium_falciparum_3D7','Bos_taurus','Gallus_gallus','Danio_rerio','Oryza_sativa_Japonica',
+                'Canis_familiaris','Bacillus_subtilis_168']
+  species: ['83333','10090','559292','9606','7227','3702','284812','6239','10116','36329','9913','9031','7955','39947','9615','224308']
+  version: BioGRID_v4.4.219
+  scoring_method: 'spearmanCorrelation_MinMax'
+
+GRG:
+  sourceUrl: https://www.encodeproject.org
+  species: ['9606','7227','6239','10090']
+  species_name: ['human','dmelanogaster','celegans','mouse']
+  genome_version: ['GRCh38','dm6','ce11','mm10']
+  species_chromosomes: [['chr22', 'chr4', 'chr5', 'chr7', 'chr16', 'chr15', 'chr21', 'chr14', 'chr19', 'chr3', 'chr8', 'chrX', 'chr10', 'chr12', 'chr11', 'chr6', 'chr20', 'chrY', 'chr18', 'chr13', 'chr2', 'chr1', 'chr9', 'chr17'],
+                        ['3R', '3L', 'X', 'Y', '4', '2R', '2L'],
+                        ['I', 'X', 'V', 'IV', 'III', 'II'],
+                        ['chr4', 'chr5', 'chr7', 'chr16', 'chr15', 'chr14', 'chr19', 'chr3', 'chr8', 'chrX', 'chr10', 'chr12', 'chr11', 'chr6', 'chrY', 'chr18', 'chr13', 'chr2', 'chr1', 'chr9', 'chr17']]
+  encode_pipeline: [True,False,False,True]
+  url_annotation: ['https://www.encodeproject.org/files/ENCFF159KBI/@@download/ENCFF159KBI.gtf.gz',
+                    'http://ftp.ensembl.org/pub/release-104/gtf/drosophila_melanogaster/Drosophila_melanogaster.BDGP6.32.104.gtf.gz',
+                    'http://ftp.ensembl.org/pub/release-104/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.104.gtf.gz',
+                    https://www.encodeproject.org/files/gencode.vM7.annotation/@@download/gencode.vM7.annotation.gtf.gz
+                    ]
+  version: ENCODE_v131.0
+  use_preferred_default: True
+  scoring_method: 'maxES_boxcox_MinMax'
+  # ## TODO --> add TFB from old sources if there's more species
+  # url: [https://cdn.netbiol.org/tflink/download_files/TFLink_Caenorhabditis_elegans_interactions_All_simpleFormat_v1.0.tsv,
+  #       https://cdn.netbiol.org/tflink/download_files/TFLink_Danio_rerio_interactions_All_simpleFormat_v1.0.tsv,
+  #       https://cdn.netbiol.org/tflink/download_files/TFLink_Drosophila_melanogaster_interactions_All_simpleFormat_v1.0.tsv,
+  #       https://cdn.netbiol.org/tflink/download_files/TFLink_Homo_sapiens_interactions_All_simpleFormat_v1.0.tsv.gz,
+  #       https://cdn.netbiol.org/tflink/download_files/TFLink_Mus_musculus_interactions_All_simpleFormat_v1.0.tsv.gz,
+  #       https://cdn.netbiol.org/tflink/download_files/TFLink_Rattus_norvegicus_interactions_All_simpleFormat_v1.0.tsv,
+  #       https://cdn.netbiol.org/tflink/download_files/TFLink_Saccharomyces_cerevisiae_interactions_All_simpleFormat_v1.0.tsv]
+  # version: 1.0_wTFwDatabase
+  # species: ['6239','7955','7227','9606','10090','10116','559292']
+
+MEX:
+  sourceUrl: https://www.ncbi.nlm.nih.gov/geo/
+  version: ''
+  scoring_method: 'abs(spearmanCorrelation)GT0.1_MinMax'
+  species: ['3702','224308','9913','6239','9615','7719','7955','44689','7227','83333','9031','9606','243232','10090','83332','39947','36329','10116','273057','559292','284812','9823']
+  geo:
+    ma: [
+      ['GSE41212','GSE41935','GSE42408','GSE65046'], #a.thaliana
+      ['GSE19831','GSE27219','GSE69575','GSE44125'], #b.subtilis
+      [], #b.taurus
+      ['GSE128075'],  #c.elegans
+      ['GSE20113','GSE23760','GSE39005'], #c.familiaris
+      [], #c.intestinalis
+      [], #d.rerio
+      ['GSE57212','GSE71036','GSE8287'], #d.discoideum
+      ['GSE38106','GSE23320','GSE11316','GSE67547','GSE5430'], #d.melanogaster + Li & White (2003)?
+      ['GSE7265','GSE40811','GSE20305'], #e.coli
+      ['GSE10538'], #g.gallus
+      ['GSE45878','GSE11882'], #h.sapiens
+      ['GSE4620'], #m.jannaschii
+      ['GSE10246','GSE25322'], #m.musculus
+      [], #m.tuberculosis
+      [], #o.sativa
+      ['GSE59097','GSE59099'], #p.falciparum
+      ['GSE63362'], #r.norvegicus
+      ['GSE12235'], #s.solfataricus
+      ['GSE8561','GSE33099','GSE33097','GSE26169','GSE45115','GSE11452','GSE25909','GSE19116','GSE5499'], #s.cerevisiae + Gasch et al. (2000)
+      ['GSE4284'], #s.pombe
+      ['GSE97374','GSE83932'] #s.scrofa
+        ]
+    rseq: [
+      [], #a.thaliana
+      [], #b.subtilis
+      ['GSE128075','GSE74152'], #b.taurus
+      ['GSE67650','GSE49043'], #c.elegans
+      ['GSE119353','GSE110661'], #c.familiaris
+      [], #c.intestinalis
+      ['GSE66688','GSE83466'], #d.rerio
+      [], #d.discoideum
+      [], #d.melanogaster
+      ['GSE74809','GSE90743'], #e.coli
+      [], #g.gallus
+      [], #h.sapiens
+      [], #m.jannaschii
+      ['GSE81682'], #m.musculus
+      [], #m.tuberculosis
+      [], #o.sativa
+      ['GSE116341'], #p.falciparum
+      [], #r.norvegicus
+      [], #s.solfataricus
+      ['GSE102475',], #s.cerevisiae
+      [], #s.pombe
+      ['GSE139512','GSE108570'] #s.scrofa
+        ]
+    gpl: [
+      'GPL7093 3',
+      'GPL3565 1','GPL14824 6','GPL1396 3','GPL1343 5',
+      'GPL7735 2','GPL6031 2','GPL10094 6','GPL9703 11',
+      'GPL9817 8','GPL200 13','GPL5627 1','GPL11232 10',
+      'GPL19987 2','GPL18893 4','GPL13149 1','GPL18725 11',
+      'GPL13637 12','GPL198 11','GPL3213 11','GPL4135 12',
+      'GPL10238 4','GPL16303 2','GPL18789 12','GPL15130 6',
+      'GPL15486 2','GPL570 11','GPL15184 9','GPL16048 7',
+      'GPL3880 7','GPL1229 1','GPL6864 1','GPL20679 5',
+      'GPL11204 4','GPL90 1','GPL15357 8','GPL7493 3',
+      'GPL6799 2','GPL16112 1','GPL20288 2','GPL10744 6',
+      'GPL3738 11','GPL7202 9','GPL1261 11','GPL8813 5',
+      'GPL4133 12','GPL13394 1','GPL1932 1','GPL8593 6',
+      'GPL16132 1','GPL9458 7','GPL1322 11','GPL10787 9',
+      'GPL6049 15','GPL4995 1','GPL1355 11','GPL96 11',
+      'GPL15379 9','GPL16977 1','GPL10041 3','GPL7301 9',
+      'GPL16226 1','GPL14688 11','GPL16569 3','GPL19893 5',
+      'GPL3533 7','GPL18629 6','GPL20706 9','GPL5382 9',
+      'GPL10094 1', 'GPL7093 3'
+      ]
+  ebi: [
+    ['E-CURD-1','E-MTAB-7978','E-GEOD-53197','E-MTAB-7933','E-GEOD-30720'], #a.thaliana
+    [], #b.subtilis
+    ['E-MTAB-2798','E-MTAB-7887','E-MTAB-2596'], #b.taurus
+    ['E-MTAB-2812'], #c.elegans
+    [], #c.familiaris
+    [], #c.intestinalis
+    ['E-ERAD-475'], #d.rerio
+    [], #d.discoideum
+    ['E-GEOD-18068','E-GEOD-20348'], #d.melanogaster
+    [], #e.coli
+    ['E-MTAB-6769','E-MTAB-7663','E-MTAB-2797'], #g.gallus
+    ['E-MTAB-5214','E-ENAD-34','E-MTAB-6814','E-MTAB-2836','E-MTAB-1733'], #h.sapiens #'E-MTAB-3358'
+    [],
+    ['E-MTAB-6798','E-GEOD-70484','E-MTAB-2801','E-MTAB-3718'], #m.musculus
+    [],
+    [], #r.norvegicus #'E-MTAB-2037','E-MTAB-2039','E-GEOD-50777'
+    [],
+    ['E-GEOD-53960', 'E-MTAB-6811', 'E-MTAB-2800'], #s.cerevisiae
+    [],
+    [],
+    [],
+    ['E-MTAB-5895'] #s.scrofa
+    ] 
+
+MIR:
+  # url: https://mirtarbase.cuhk.edu.cn/~miRTarBase/miRTarBase_2022/cache/download/9.0/miRTarBase_MTI.xlsx
+  # version: 'MirTarBase_v2022-09'
+  # scoring_method: 'jaccardIndexGT0_boxcox_MinMax'
+  # species: ['3702','9913','6239','7227','7955','9031','9606','10090','10116','9823']
+  sourceUrl: ''
+  species: ['9606','10090','10116','7227','6239']
+  files: ['human_predictions_S_C_aug2010.txt','mouse_predictions_S_C_aug2010.txt','rat_predictions_S_C_aug2010.txt','fruitfly_predictions_S_C_aug2010.txt','nematode_predictions_S_C_aug2010.txt']
+  version: 'microRNA.org_v2010'
+  scoring_method: 'jaccardIndexGT0_boxcox_MinMax'
+
+PEX:
+  # url: https://www.proteinatlas.org/download/normal_tissue.tsv.zip
+  # version: 2022-02
+  # species: ['9606']
+  sourceUrl: https://www.proteinatlas.org/download/
+  url: https://pax-db.org/downloads/5.0/datasets/paxdb-abundance-files-v5.0.zip
+  version: PaxDb_v5.0
+  scoring_method: ['jaccardIndexGT0_boxcox_MinMax','spearmanCorrelation_MinMax']
+  species: ['10090','7955','3702','9606','10116','9031']
+
+PIN:
+  species: ['9606','10090','3702','83333','224308','9913','10116','559292','9031','7227','7955','7719','9615','6239','36329','284812','39947','9823','44689','243232','273057','83332']
+  version: iRefIndex_v2022-08
+  scoring_method: 'avg(wPmid)/wGeneDegree_boxcox_MinMax'
+  url: https://irefindex.vib.be/download/irefindex/data/archive/release_19.0/psi_mitab/MITAB2.6/All.mitab.08-22-2022.zip
+  sourceUrl: https://irefindex.vib.be/wiki/index.php/README_MITAB2.6_for_iRefIndex_19.0
+  
+  pathogens: ['2697049']
+  urlPathogen: ['https://irefindex.vib.be/psicquic/webservices/current/search/query/taxid:2697049']
+  filePathogen: ['mitab_2697049']
+
+PHP:
+  species: ['9606','10090','3702','83333','224308','9913','10116','559292','9031','7227','7955','7719','9615','6239','36329','284812','39947','9823','44689','243232','273057','83332']
+  version: InParanoiDB_v9.0
+  scoring_method: 'phyloFreak_MinMax'
+  distanceMatrixURL: https://inparanoidb.sbc.su.se/download/orthophylogram_distanceMatrix
+  distanceMatrixFileName: distanceMatrix_InParanoid8Method #distanceMatrix_inparanoidb9
+  orthologCollectionMethod: file  # Options: file, url. If option file is selected, all inparanoid
+                                  # sqltable files (for all species versus all species) must be available
+                                  # under data/tmp/resultsInParanoid. This is a lot faster than fetcing
+                                  # from the orthologsUrl. For InParanoidb9, the files can be copied from
+                                  # octa2 at: /scratch/inparanoiDB9/inparanoidb9/inparanoid9_app/output_domainoid/resultsInParanoid
+                                  # if option url is selected, all ortholog information will be collected
+                                  # through the inparanoiDB website using the url defined in orthologsUrl
+  orthologsUrl: http://octa2.scilifelab.se:81/download/proteinorthologs/PROTEIN&all&csv #https://inparanoidb.sbc.su.se/download/proteinorthologs/PROTEIN&all&csv
+  sourceUrl: https://inparanoidb.sbc.su.se/download/
+
+SCL:
+  species: ['9606','10090','3702','83333','224308','9913','10116','559292','9031','7227','7955','7719','9615','6239','36329','284812','39947','9823','44689','243232','273057','83332']
+  version: GeneOntology_v2023-03
+  scoring_method: 'semanticSimilairty_boxcox_MinMax'
+  semanticSimilarity: True
+  goOntologyFile: http://current.geneontology.org/ontology/go.obo
+  goAnnotationUrl: http://current.geneontology.org/annotations/SPECIES.gaf.gz
+  goFilePerSpecies: ['goa_human','mgi','tair','ecocyc','goa_uniprot_all','goa_cow','rgd','sgd','goa_chicken','fb','zfin','goa_uniprot_all','goa_dog','wb','genedb_pfalciparum','pombase','goa_uniprot_all','goa_pig','dictybase','goa_uniprot_all','goa_uniprot_all','goa_uniprot_all']
+  sourceUrl: http://current.geneontology.org/annotations/
+
+TFB:
+  url: [https://cdn.netbiol.org/tflink/download_files/TFLink_Caenorhabditis_elegans_interactions_All_simpleFormat_v1.0.tsv,
+        https://cdn.netbiol.org/tflink/download_files/TFLink_Danio_rerio_interactions_All_simpleFormat_v1.0.tsv,
+        https://cdn.netbiol.org/tflink/download_files/TFLink_Drosophila_melanogaster_interactions_All_simpleFormat_v1.0.tsv,
+        https://cdn.netbiol.org/tflink/download_files/TFLink_Homo_sapiens_interactions_All_simpleFormat_v1.0.tsv.gz,
+        https://cdn.netbiol.org/tflink/download_files/TFLink_Mus_musculus_interactions_All_simpleFormat_v1.0.tsv.gz,
+        https://cdn.netbiol.org/tflink/download_files/TFLink_Rattus_norvegicus_interactions_All_simpleFormat_v1.0.tsv,
+        https://cdn.netbiol.org/tflink/download_files/TFLink_Saccharomyces_cerevisiae_interactions_All_simpleFormat_v1.0.tsv]
+  version: TFLink_v1.0
+  scoring_method: 'jaccardIndexGT0_boxcox_MinMax'
+  species: ['6239','7955','7227','9606','10090','10116','559292']
+  sourceUrl: https://tflink.net/download/

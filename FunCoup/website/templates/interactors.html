@@ -1,0 +1,207 @@
+<!-- Table for network interactors, imported from network.html -->
+{% load dictFilter %}
+<div class="networkTabContainer content_interactors">
+  <div class="accordion interactionsAccordion" id="interactionsAccordion">
+    <!-- Each species (multiple in case of comparative interactomics) gets its own header in the accordion -->
+    {% for sp in parameters.species %}
+     <!-- For the query species, a separate accordion is set up for the query genes -->
+      {% if forloop.counter0 == 0 %}
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button InteractorAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#queryInteractorsAccordion{{sp.short}}" aria-expanded="true" aria-controls="queryInteractorsAccordion">
+          {% if parameters.numSpecies > 1 %}
+          Query genes {{sp.speciesName}}
+          {% else %}
+          Query genes
+          {% endif %}
+        </button>
+      </h2>
+      <div id="queryInteractorsAccordion{{sp.short}}" class="accordion-collapse collapse show">
+        <div class="accordion-body">
+          <table class="table small">
+            <tr>
+              <th colspan="1" class="max-width-40rem"></th>
+              <th colspan="1" class="max-width-40rem">Gene Symbol</th>
+              <th colspan="1" class="max-width-40rem">Description</th>
+              <th colspan="1" class="max-width-40rem">UniProt ID</th>
+              <th colspan="1" class="max-width-40rem">Ensembl ID</th>
+              <th colspan="1" class="max-width-40rem">NCBI ID</th>
+              <th colspan="1" class="max-width-40rem">KEGG pathways</th>
+              <th colspan="1"class="max-width-40rem">Node color</th>
+            </tr>
+            {% for id,node in data.nodes.items %}
+              {% if node.queryNode == "True" %}
+              <div>
+              <tr id='interactor_row_{{node.id}}'  onmouseover='mouseOver({{node}})' onmouseout='mouseOut({{node}})'>
+                <td class="max-width-40rem">
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" style="--bs-btn-padding-y: 0rem; --bs-btn-padding-x: .1rem; --bs-btn-font-size: 1rem;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="bi-plus useAsQuery" title="Use as FunCoup query"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item pointer" onclick="useAsQuery('{{node.mappings.UniProtID}}')">Use as query</a></li>
+                      <li><a class="dropdown-item pointer" onclick="addToQuery('{{node.mappings.UniProtID}}')">Add to current query</a></li>
+                    </ul>
+                  </div>
+                </td>
+                <td class="max-width-40rem">{{node.mappings.Gene_Symbol}}</td>
+                <td class="max-width-40rem">{{node.description}}</td>
+                <td class="max-width-40rem">
+                  <a href="https://www.uniprot.org/uniprotkb/{{node.mappings.UniProtID}}/entry" target="_blank">{{node.mappings.UniProtID}}</a>
+                </td>
+                <td class="max-width-40rem">
+                  <a href="http://www.ensembl.org/Gene/Summary?g={{node.mappings.Ensembl}}" target="_blank">{{node.mappings.Ensembl}}</a>
+                </td>
+                <td class="max-width-40rem">
+                  <a href="https://www.ncbi.nlm.nih.gov/gene/?term={{node.mappings.Gene_ID}}" target="_blank">{{node.mappings.Gene_ID}}</a>
+                </td>
+                <td class="max-width-40rem">
+                  <!-- Listing all associated pathways in a single line with comma separation -->
+                {% if node.pathwayIds %}
+                {% for pathway in node.pathwayIds %}
+                  <a href="https://www.genome.jp/entry/map{{ pathway }}" target="_blank">{{ pathway }}</a>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+                {% endif %}
+                </td>
+                <td class="max-width-40rem">
+                  <div>
+                    <input type="color" class="colorPicker" id="nodeColor_{{node.id}}" name="colorPicker" value="{{node.species.color}}" data-bs-custom-class="whiteTooltip" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Click to change the color of this node" onChange="changeNodeColor({{node.id}},'')"/>
+                  </div>
+                </td>    
+              </tr>
+              {% endif %}
+            {% endfor %}
+            </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button InteractorAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#subnetworInteractorsAccordion{{sp.short}}" aria-expanded="true" aria-controls="subnetworInteractorsAccordion">
+          {% if parameters.maxlink == "True" %}
+            MaxLink hits
+          {% else %}
+            Subnetwork genes 
+          {% endif %}
+          {% if parameters.numSpecies > 1 %}
+          {{sp.speciesName}}
+          {% endif %}
+        </button>
+      </h2>
+      <div id="subnetworInteractorsAccordion{{sp.short}}" class="accordion-collapse collapse show">
+        <div class="accordion-body">
+          <table class="table small">
+            <tr>
+              <th colspan="1" class="max-width-40rem"></th>
+              <th colspan="1" class="max-width-40rem">Gene Symbol</th>
+              <th colspan="1" class="max-width-40rem">Description</th>
+              <th colspan="1" class="max-width-40rem">UniProt ID</th>
+              <th colspan="1" class="max-width-40rem">Ensembl ID</th>
+              <th colspan="1" class="max-width-40rem">NCBI ID</th>
+              <!-- For maxlink, additional information is shown -->
+              {% if parameters.maxlink == "True" %}
+                <th colspan="1" class="mw80p max-width-40rem">FDR</th>
+                <th colspan="1" class="mw80p max-width-40rem">FWER</th>
+                <th colspan="1" class="max-width-40rem">Links to query set</th>
+                <th colspan="1" class="max-width-40rem">Node Degree</th>
+              {% endif %}
+              <th colspan="1" class="max-width-40rem">KEGG pathways</th>
+              <th colspan="1" class="max-width-40rem">Node color</th>
+            </tr>
+            <!-- Iterating over the sorted nodes for the species, in order to get maxlink hits in the correct order -->
+            {% for id in parameters.sortedNodes %}
+              {% get_value data.nodes id as node %}
+              {% if node.queryNode == "False" %}
+              {% if node.species.speciesName == sp.speciesName %}
+
+              <div>
+              <tr id='interactor_row_{{node.id}}'  onmouseover='mouseOver({{node}})' onmouseout='mouseOut({{node}})'>
+                <td class="max-width-40rem">
+                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" style="--bs-btn-padding-y: 0rem; --bs-btn-padding-x: .1rem; --bs-btn-font-size:1rem;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi-plus useAsQuery" title="Use as FunCoup query"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item pointer" onclick="useAsQuery('{{node.mappings.UniProtID}}')">Use as query</a></li>
+                    <li><a class="dropdown-item pointer" onclick="addToQuery('{{node.mappings.UniProtID}}')">Add to current query</a></li>
+                  </ul>
+                </div>
+                </td>
+                <td class="max-width-40rem">{{node.mappings.Gene_Symbol}}</td>
+                <td class="max-width-40rem">{{node.description}}</td>
+                <td class="max-width-40rem">
+                  <a href="https://www.uniprot.org/uniprotkb/{{node.mappings.UniProtID}}/entry" target="_blank">{{node.mappings.UniProtID}}</a>
+                </td>
+                <td class="max-width-40rem">
+                  <a href="http://www.ensembl.org/Gene/Summary?g={{node.mappings.Ensembl}}" target="_blank">{{node.mappings.Ensembl}}</a>
+                </td>
+                <td class="max-width-40rem">
+                  <a href="https://www.ncbi.nlm.nih.gov/gene/?term={{node.mappings.Gene_ID}}" target="_blank">{{node.mappings.Gene_ID}}</a>
+                </td>
+                <!-- Adding maxlink-specific information -->
+                {% if parameters.maxlink == "True" %}
+                  <td class="max-width-40rem">{{node.maxlinkFdr}}</td>
+                  <td class="max-width-40rem">{{node.maxlinkFwer}}</td>
+                  <td class="max-width-40rem">{{node.maxlinkScore}}</td>
+                  <td class="max-width-40rem">{{node.maxlinkDegree}}</td>
+              {% endif %}
+                <td class="max-width-40rem" colspan="1">
+                  {% if node.pathwayIds %}
+                  {% for pathway in node.pathwayIds %}
+                    <a href="https://www.genome.jp/entry/map{{ pathway }}" target="_blank">{{ pathway }}</a>{% if not forloop.last %}, {% endif %}
+                  {% endfor %}
+                  {% endif %}
+                </td>
+                <td class="max-width-40rem">
+                  <div>
+                    <input type="color" class="colorPicker" id="nodeColor_{{node.id}}" name="colorPicker" data-bs-custom-class="whiteTooltip" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Click to change the color of this node" value="{{node.species.color}}" onChange="changeNodeColor({{node.id}},'')"/>
+                  </div>
+                </td> 
+              </tr>
+              {% endif %}
+              {% endif %}
+            {% endfor %}
+            </table>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+  <script type="text/javascript">
+
+    // Function to change the color of a node, triggered by the color picker for either pathway or individual node
+    function changeNodeColor(nodeId, pathway){
+      if (pathway==""){ // pathway information is empty for individual node calls
+        var newColor = $("#nodeColor_"+nodeId).val()
+        setNodeColor(nodeId, newColor)
+      }else{
+        var newColor = $("#pathwayColor_"+pathway+"_"+nodeId).val()
+        setNodeColorByPathway(pathway, newColor)
+        //update color boxes
+        $('.colorPickerPathway').each(function(i, obj) {
+            var pw=obj.id.split("_")[1];
+            var node=obj.id.split("_")[2];
+            if (pw==pathway){
+              $("#pathwayColor_"+pw+"_"+node).val(newColor);
+              $("#nodeColor_"+node).val(newColor);
+            }
+        });
+      }
+    }
+ 
+    // Function to handle useAsQuery button. Fills the new identifier into the form, and makes a new request to the network view
+    function useAsQuery(gene){
+      $('#searchform').find('#geneIdSearch').text(gene)
+      $('#searchform').submit();
+    }
+
+    // Function to handle addToQuery button. Appends the new identifier into the form, and makes a new request to the network view
+    function addToQuery(gene){
+      var currentQuery = $('#searchform').find('#geneIdSearch').text()
+      $('#searchform').find('#geneIdSearch').text(currentQuery+" "+gene)
+      $('#searchform').submit();
+    }
+
+  </script>

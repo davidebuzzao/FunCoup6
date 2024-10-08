@@ -1,0 +1,87 @@
+<!-- Here is the header, shown/included on each page. Includes necessary scripts and css for the website to work -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/funcoup.css' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,  shrink-to-fit=no"/>
+
+  <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
+   <title>FunCoup</title>
+</head>
+
+<body>
+    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-tools/1.2.7/jquery.tools.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/funcoup.js' %}"></script>
+    <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R0G9Q2Q0VZ"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R0G9Q2Q0VZ');
+    </script>
+
+<header> 
+    <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
+
+        <div id="logo-container"></div> <!-- Placeholder for the logo -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link " href="/search/">Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/statistics/" >Statistics</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/help/">Help</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/downloads/">Download</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/api/">API</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/archive/">Archive</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/contact/">Contact</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+</header>
+
+<script>
+    // Detect if it's the landing page (index)
+    var isLandingPage = window.location.pathname === '/' || window.location.pathname === '/search/';
+    
+    // If it's not the landing page, add the logo with an image
+    if (!isLandingPage) {
+        var logoContainer = document.getElementById('logo-container');
+        var logoElement = document.createElement('a');
+        logoElement.setAttribute('class', 'navbar-brand');
+        logoElement.setAttribute('href', '/');
+        var logoImg = document.createElement('img');
+        logoImg.setAttribute('src', '{% static "website/images/FC6LogoOnly.svg" %}');
+        logoImg.setAttribute('alt', 'Logo');
+        logoImg.setAttribute('height', '27');
+        logoImg.setAttribute('class', 'd-inline-block align-text-top');
+        logoElement.appendChild(logoImg);
+        logoContainer.appendChild(logoElement);
+        logoElement.style.paddingLeft = '10px'; // Adjust padding as needed
+    }
+</script>

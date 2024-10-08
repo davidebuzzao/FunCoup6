@@ -1,0 +1,1033 @@
+<!-- Search form, containing all components to make a funCoup query -->
+<form action="." method="post" enctype="application/x-www-form-urlencoded" id="searchform" name="searchform">
+  {% csrf_token %}
+<head>
+    {% load static %}
+    <!-- #2f85ba -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FunCoup Search</title>
+    <style>
+        
+    </style>
+</head>
+<body>
+    <div class="container-fluid main-container">
+        <div class="row">
+            <img src="{% static 'website/images/FC6Logo.svg' %}" alt="Logo"  class="mb-3" height="120">
+        </div>
+        
+        <div class="search-box">
+            <form method="post">
+              {% csrf_token %}
+                <div class="form-row row">
+                  <div class="form-group col-md-6">
+                    <label for="geneIdSearch" class="form-label">Gene identifier(s)</label>
+                    <!-- <input type="text" class="form-control form-control-gene" id="geneIdSearch" placeholder="Enter one or multiple identifiers separated by space"> -->
+                    {{ query.geneQuery }}
+                
+                    <!-- Manually render errors to avoid list formatting -->
+                    {% if query.geneQuery.errors %}
+                        <div class="error-message">
+                            {% for error in query.geneQuery.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                
+                    {{ parameters.error }}
+                </div>
+                
+                    <div class="form-group col-md-4">
+                        <label for="speciesName" class="form-label">Select species</label>
+                        <div class="autocomplete">
+                          {{ query.genomeSelect }}
+                      
+                          <!-- Manually render errors to avoid list formatting -->
+                          {% if query.genomeSelect.errors %}
+                              <div class="error-message">
+                                  {% for error in query.genomeSelect.errors %}
+                                      <p>{{ error }}</p>
+                                  {% endfor %}
+                              </div>
+                          {% endif %}
+                        </div>
+
+                    </div>
+                    <div class="form-group col-md-2 align-items-start"> 
+                      <label for="search_button" class="form-label" style="visibility: hidden;">Hidden Label</label>
+                      <div><button type="submit" class="btn btn-primary btn-block" id="search_button">Search</button></div>
+                    </div>
+
+                    <!-- Spinner and overlay -->
+                    <div id="overlay">
+                      <div class="dot-spinner">
+                          <div></div>
+                          <div></div>
+                          <div></div>
+                      </div>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <p>
+                        Examples:
+                        <a class="pointer form-control-gene exampleMargin" id="exampleButton">#1</a>
+                        <a class="pointer form-control-gene exampleMargin" id="covidButton">SARS-CoV-2</a>
+                        <a class="pointer form-control-gene exampleMargin" id="topasButton">TOPAS</a>
+                        <a class="pointer form-control-gene exampleMargin" id="maxlinkButton">MaxLink</a>
+                    </p><!-- <small class="form-text text-muted">Examples: #1 SARS-Cov-2 TOPAS MaxLink</small> -->
+                </div>
+            </form>
+        </div>
+
+        <div class="form-check form-switch mt-4" id="showadvancedSearch">
+          <input class="form-check-input" type="checkbox" id="advancedSearchToggle">
+          <label class="form-check-label" for="advancedSearchToggle">Advanced search</label>
+        </div>
+      
+      <!-- Advanced search options -->
+      <div class="accordion pt-3 dynamic-width-container" id="advancedSearchAccordion">
+        <div class="accordion-item">
+              <!-- Tabs for advanced search declared -->
+              <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#advancedSearchAccordion">
+                  <div class="accordion-body">
+                      <ul class="nav nav-tabs" id="myTab" role="tablist">
+                          <li class="nav-item" role="presentation">
+                              <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#subnetwork-tab-pane" type="button" role="tab" aria-controls="subnetwork-tab-pane" aria-selected="true">Sub-networks</button>
+                          </li>
+                          <li class="nav-item" role="presentation">
+                              <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#comparative-tab-pane" type="button" role="tab" aria-controls="comparative-tab-pane" aria-selected="false">Comparative interactomics</button>
+                          </li>
+                          <li class="nav-item" role="presentation">
+                              <button class="nav-link" id="disabled-tab" data-bs-toggle="tab" data-bs-target="#restrictions-tab-pane" type="button" role="tab" aria-controls="restrictions-tab-pane" aria-selected="false">Restrictions</button>
+                          </li>
+                      </ul>
+      
+                      <!-- Sub-network selection -->
+                      <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active pt-3" id="subnetwork-tab-pane" role="tabpanel" aria-labelledby="subnetwork-tab" tabindex="0">
+                          <div class="row">
+                            <div class="col-md-6">
+                              <h6>Expansion algorithm</h6>
+                                <div class="form-check form-switch mt-2" id="expansionAlgorithm">
+                                  <input class="form-check-input" name="expansionAlgorithm" type="radio" id="expansionAlgorithm_0" value="maxlink">
+                                  <label class="form-check-label" for="expansionAlgorithm_0">MaxLink <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Query using the Maxlink algorithm. MaxLink searches the networks with a large list of query genes to find genes that are more strongly connected to the query than expected by chance and ranks the results by the strength of their connection."></i></label>
+                                </div>
+                                <div class="form-check form-switch mt-2" id="expansionAlgorithm">
+                                  <input class="form-check-input" name="expansionAlgorithm" type="radio" id="expansionAlgorithm_1" value="topas">
+                                  <label class="form-check-label" for="expansionAlgorithm_1">TOPAS <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Query using the TOPAS algorithm. TOPAS fully exploits the potential of the interactome by using Random Walk with Restart runs to connect in a top-down fashion the largest number of query-related genes."></i></label>
+                                </div>
+                                <div class="form-check form-switch mt-2" id="expansionAlgorithm">
+                                  <input class="form-check-input" name="expansionAlgorithm" type="radio" id="expansionAlgorithm_2" value="local">
+                                  <label class="form-check-label" for="expansionAlgorithm_2">Each gene independently <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="In every expansion step for each individual query gene the N most strongly connected genes are added. Optimal for queries with unrelated genes. The subnetwork will grow with the size of the query."></i></label>
+                                </div>
+
+                                <div id="AccordionGeneGroup">
+                                  <div class="accordion-item">
+                                      <div class="accordion-header form-check form-switch mt-2" id="expansionAlgorithm">
+                                          <input class="form-check-input" name="expansionAlgorithm" type="radio" id="expansionAlgorithm_3" value="group" data-bs-toggle="collapse" data-bs-target="#conditionalCollapsePrioritizeNeighbors" aria-controls="conditionalCollapsePrioritizeNeighbors" checked>
+                                          <label class="form-check-label" for="expansionAlgorithm_3">Genes as group <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="In every expansion step the N genes that are most strongly connected to the query are added. Optimal for queries with related genes. The subnetwork size is independent of the of the query size Check 'prioritize common neighbors' if you are in particular interested in genes that interact with multiple query genes."></i>
+                                          </label>
+                                      </div>
+                                      <div id="conditionalCollapsePrioritizeNeighbors" class="accordion-collapse collapse show" aria-labelledby="conditionalHeader" data-bs-parent="#AccordionGoldStandard">
+                                          <div class="accordion-body" style="padding-top: 0; padding-left: 16px;">
+                                              <div class="form-check mt-2" id="expansionAlgorithm">
+                                                  <input class="form-check-input" type="checkbox" id="id_prioritizeNeighbors" name="prioritizeNeighbors" value="on" checked>
+                                                  <label class="form-check-label" for="id_prioritizeNeighbors">prioritize common neighbors</label>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+
+                            </div>
+
+                            <div class="col-md-6">
+                              <h6>Expansion parameters</h6>
+                              <label for="confidenceThreshold" class="form-label">Link confidence threshold <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="The minimum experimental support (PPV) required for a link to be shown in the sub-network."></i></label>
+                              <br>{{query.confidenceThreshold}}
+                              <output id="confidenceThresholdValue" class="sliderValue"></output><br>
+                              <label for="grgLLRThreshold" class="form-label" id="grgLLRThreshold">Direction confidence threshold <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="The minimum experimental support (LLR) from GRG evidence required for a link to be shown with direction in the sub-network."></i></label>
+                              <br>{{query.grgLLRThreshold}}
+                              <output id="grgLLRThresholdValue" class="sliderValue"></output><br>
+                              <label for="depth" class="form-label" id="depthLabel">Expansion depth </label> <i class="bi-question-circle sliderValue" id="depth_tooltip" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="How many steps from the query genes the sub-network spans. If the expansion depth is 0 only links between query genes are shown. With a query depth of 1 only genes directly linked to query genes are shown. At an expansion depth greater than 1 indirect links are shown."></i>
+                              <br>{{query.depth}}
+                              <output id="depthValue" class="sliderValue"></output><br>
+                              <label for="nodesPerStepOptions" class="form-label" id="nodesPerStepLabel">Nodes per expansion step </label><i class="bi-question-circle sliderValue" id="expansion_tooltip" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Maximal number of nodes added per expansion step."></i>
+                              <br>{{query.nodesPerStepOptions}}
+                              <output id="nodesPerStepOptionsValue" class="sliderValue"></output><br>  
+                            </div>
+                          <div><button type="submit" class="btn btn-primary btn-block search_buttonAdvanced" id="search_buttonAdvanced">Search</button></div>
+                        </div>
+
+                      </div>
+
+  
+                      <!-- Comparative interactomics -->
+                      <div class="tab-pane fade pt-3" id="comparative-tab-pane" role="tabpanel" aria-labelledby="comparative-tab" tabindex="0">
+                        <div id="AccordionComparativeInter">
+                          <div class="accordion-item">
+                              <div class="accordion-header form-check form-switch mt-2" id="comparativeSpecies">
+                                  <input class="form-check-input" type="checkbox" id="id_comparativeSpecies" data-bs-toggle="collapse" data-bs-target="#conditionalCollapseComparativeSpecies" aria-controls="conditionalCollapseComparativeSpecies">
+                                  <label class="form-check-label" for="id_comparativeSpecies">Search for conserved subnetworks in <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Search across multiple species for conserved subnetworks around the query."></i>
+                                  </label>
+                              </div>
+                              <div id="conditionalCollapseComparativeSpecies" class="accordion-collapse collapse" aria-labelledby="conditionalHeader" data-bs-parent="#AccordionComparativeInter">
+                                <div class="accordion-body">
+                                    <div class="form-check mt-2" id="comparativeSpecies">
+                                      <div class="p-1">
+                                        <div class="row">
+                                          <!-- First column -->
+                                          <div class="col-md-6">
+                                            <div class="column" style="flex: 1;">
+                                                {% for genome in query.comparativeGenomes|slice:":11" %}
+                                                    <div>{{ genome }}</div>
+                                                {% endfor %}
+                                            </div>
+                                          </div>
+                                          <div class="col-md-6">
+                                            <!-- Second column -->
+                                            <div class="column" style="flex: 1;">
+                                                {% for genome in query.comparativeGenomes|slice:"11:" %}
+                                                    <div>{{ genome }}</div>
+                                                {% endfor %}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  <div class="form-check form-switch mt-2" id="comparativeAlgo">
+                                    {{query.individualEvidenceOnly}}
+                                    <label>Use species-specific evidence only</label>
+                                    <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Require species-specific evidence in support of the conservation."></i>
+                                  </div>
+                                  <div class="form-check form-switch mt-2" id="comparativeAlgo">
+                                    {{query.orthologsOnly}}
+                                    <label>Align orthologs only</label>
+                                    <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Fetch only query network orthologs."></i>
+                                  </div>  
+                                </div>
+                              </div>
+                        </div>
+
+                        <div><button type="submit" class="btn btn-primary btn-block search_buttonAdvanced" id="search_buttonAdvanced">Search</button></div>
+                        </div>
+                      </div>
+
+
+                      <!-- Restrictions -->
+                      <div class="tab-pane fade pt-3" id="restrictions-tab-pane" role="tabpanel" aria-labelledby="restrictions-tab" tabindex="0"> 
+                        <ul class="nav nav-tabs" id="restrictions2-tab" role="tablist">
+                          <li class="nav-item" role="goldstandard">
+                              <button class="nav-link active" id="goldstandard-tab" data-bs-toggle="tab" data-bs-target="#goldstandard-tab-pane" type="button" role="tab" aria-controls="goldstandard-tab-pane" aria-selected="true">Gold Standard</button>
+                          </li>
+                          <li class="nav-item" role="evidence">
+                              <button class="nav-link" id="evidence-tab" data-bs-toggle="tab" data-bs-target="#evidence-tab-pane" type="button" role="tab" aria-controls="evidence-tab-pane" aria-selected="false">Evidence</button>
+                          </li>
+                          <li class="nav-item" role="genes">
+                              <button class="nav-link" id="genes-tab" data-bs-toggle="tab" data-bs-target="#genes-tab-pane" type="button" role="tab" aria-controls="genes-tab-pane" aria-selected="false">Genes</button>
+                          </li>
+                        </ul>
+                      
+                        <!-- Gold standard !-->
+                        <div class="tab-content">
+                          <div class="tab-pane fade show active pt-3" id="goldstandard-tab-pane" role="tabpanel" aria-labelledby="goldstandard-tab" tabindex="0"> 
+                            <h6>Gold Standards</h6>
+                              <!-- <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Consider only the network of the given type."></i> -->
+                              <div class="form-check form-switch mt-2" id="allconstrainGoldStandard">
+                                <input class="form-check-input" type="radio" name="constrainGoldStandard" id="id_constrainGoldStandard_0" value="all" checked>
+                                <label class="form-check-label" for="id_constrainGoldStandard_0">Use all gold standards</label>
+                              </div>
+                              
+                              <div id="AccordionGoldStandard">
+                                <div class="accordion-item">
+                                    <div class="accordion-header form-check form-switch mt-2" id="id_constrainGoldStandard_1">
+                                        <input class="form-check-input"  type="radio" name="constrainGoldStandard" id="id_constrainGoldStandard_1" data-bs-toggle="collapse" data-bs-target="#conditionalCollapseGoldStandard" aria-controls="conditionalCollapseGoldStandard">
+                                        <label class="form-check-label" for="id_constrainGoldStandard_1">Use only gold standard</label>
+                                    </div>
+                                    <div id="conditionalCollapseGoldStandard" class="accordion-collapse collapse" aria-labelledby="conditionalHeader" data-bs-parent="#AccordionGoldStandard">
+                                        <div class="accordion-body">
+                                          <div class="form-check form-switch mt-2" id="categoryIDform">
+                                              <div class="row">
+                                                <div class="col-md-6">
+                                                  <!-- First column -->
+                                                  <div class="form-check mt-2" id="constrainGoldStandardOnly">
+                                                    <input class="form-check-input"  type="radio" name="constrainGoldStandardLinks" id="id_constrainGoldStandard_2" value="Complex">
+                                                    <label class="form-check-label" for="id_constrainGoldStandard_2">Complex links</label>
+                                                  </div>
+                                                  <div class="form-check mt-2" id="constrainGoldStandardOnly">
+                                                    <input class="form-check-input"  type="radio" name="constrainGoldStandardLinks" id="id_constrainGoldStandard_3" value="Metabolic">
+                                                    <label class="form-check-label" for="id_constrainGoldStandard_3">Metabolic links</label>
+                                                  </div>
+                                                  <div class="form-check mt-2" id="constrainGoldStandardOnly">
+                                                    <input class="form-check-input"  type="radio" name="constrainGoldStandardLinks" id="id_constrainGoldStandard_4" value="Operon">
+                                                    <label class="form-check-label" for="id_constrainGoldStandard_4">Operon links</label>
+                                                  </div>
+
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <!-- Second column -->
+                                                  <div class="form-check mt-2" id="constrainGoldStandardOnly">
+                                                    <input class="form-check-input"  type="radio" name="constrainGoldStandardLinks" id="id_constrainGoldStandard_5" value="PPI">
+                                                    <label class="form-check-label" for="id_constrainGoldStandard_5">PPI links</label>
+                                                  </div>
+                                                  <div class="form-check mt-2" id="constrainGoldStandardOnly">
+                                                    <input class="form-check-input"  type="radio" name="constrainGoldStandardLinks" id="id_constrainGoldStandard_6" value="Regulatory">
+                                                    <label class="form-check-label" for="id_constrainGoldStandard_6">Regulatory links</label>
+                                                  </div>
+                                                  <div class="form-check mt-2" id="constrainGoldStandardOnly">
+                                                    <input class="form-check-input"  type="radio" name="constrainGoldStandardLinks" id="id_constrainGoldStandard_7" value="Signaling">
+                                                    <label class="form-check-label" for="id_constrainGoldStandard_7">Signaling links</label>
+                                                  </div>
+
+                                                </div>
+                                              </div>
+                                          </div>
+                                        </div>
+                                    </div>
+                                </div>
+                              </div>
+                            <div><button type="submit" class="btn btn-primary btn-block search_buttonAdvanced" id="search_buttonAdvanced">Search</button></div>
+                          </div>
+                      
+                          <!-- Evidence !-->
+                          <div class="tab-pane fade pt-3" id="evidence-tab-pane" role="tabpanel" aria-labelledby="evidence-tab" tabindex="0"> 
+                            <h6>Evidences</h6>
+                            <div class="form-check form-switch mt-2" id="AccordionAllEvidences">
+                              <input class="form-check-input" type="radio" name="constrainEvidence" id="id_constrainEvidence_0" value="all" checked>
+                              <label class="form-check-label" for="id_constrainEvidence_0">Use all evidences</label>
+                            </div>
+
+                            <div id="AccordionEvidenceTypes">
+                              <div class="accordion-item">
+                                  <div class="accordion-header form-check form-switch mt-2" id="headerEvidenceTypes">
+                                      <input class="form-check-input" type="radio" name="constrainEvidence" id="id_constrainEvidence_1" data-bs-toggle="collapse" data-bs-target="#conditionalCollapseEvidenceTypes" aria-controls="conditionalCollapseEvidenceTypes">
+                                      <label class="form-check-label" for="id_constrainEvidence_1">Use only evidence from data types</label>
+                                  </div>
+                                  <div id="conditionalCollapseEvidenceTypes" class="accordion-collapse collapse" aria-labelledby="headerEvidenceTypes" data-bs-parent="#AccordionEvidenceTypes">
+                                      <div class="accordion-body">
+                                          <div class="row">
+                                              <div class="col-md-3">
+                                                  <div class="column" style="flex: 1;">
+                                                      {% for evidence in query.evidenceDataTypes|slice:":5" %}
+                                                          <div>{{ evidence }}</div>
+                                                      {% endfor %}
+                                                  </div>
+                                              </div>
+                                              <div class="col-md-9">
+                                                  <div class="column" style="flex: 1;">
+                                                      {% for evidence in query.evidenceDataTypes|slice:"5:" %}
+                                                          <div>{{ evidence }}</div>
+                                                      {% endfor %}
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+
+                          <div id="AccordionEvidenceSpecies">
+                              <div class="accordion-item">
+                                  <div class="accordion-header form-check form-switch mt-2" id="headerEvidenceSpecies">
+                                      <input class="form-check-input" type="radio" name="constrainEvidence" id="id_constrainEvidence_2" data-bs-toggle="collapse" data-bs-target="#conditionalCollapseEvidenceSpecies" aria-controls="conditionalCollapseEvidenceSpecies">
+                                      <label class="form-check-label" for="id_constrainEvidence_2">Use only evidence from species</label>
+                                  </div>
+                                  <div id="conditionalCollapseEvidenceSpecies" class="accordion-collapse collapse" aria-labelledby="headerEvidenceSpecies" data-bs-parent="#AccordionEvidenceSpecies">
+                                      <div class="accordion-body">
+                                          <div class="row">
+                                              <div class="col-md-6">
+                                                  <div class="column" style="flex: 1;">
+                                                      {% for genome in query.evidenceSpecies|slice:":11" %}
+                                                          <div>{{ genome }}</div>
+                                                      {% endfor %}
+                                                  </div>
+                                              </div>
+                                              <div class="col-md-6">
+                                                  <div class="column" style="flex: 1;">
+                                                      {% for genome in query.evidenceSpecies|slice:"11:" %}
+                                                          <div>{{ genome }}</div>
+                                                      {% endfor %}
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          
+                          
+                            
+                            <div><button type="submit" class="btn btn-primary btn-block search_buttonAdvanced" id="search_buttonAdvanced">Search</button></div>
+                          </div>
+                          
+                          <!-- Genes !-->
+                          <div class="tab-pane fade pt-3" id="genes-tab-pane" role="tabpanel" aria-labelledby="genes-tab" tabindex="0"> 
+                            <h6>Genes</h6>
+                            <div class="form-check form-switch mt-2" id="noRestriction">
+                              <input class="form-check-input" type="radio" name="constrainGene" id="id_restriction_0" value="all" checked>
+                              <label class="form-check-label" for="id_restriction_0">Use all genes</label>
+                            </div>
+                      
+                            <div id="AccordionRestrictionPathway">
+                              <div class="accordion-item">
+                                  <div class="accordion-header form-check form-switch mt-2" id="accordionHeaderPathway">
+                                      <input class="form-check-input" type="radio" name="constrainGene" id="id_restriction_1" data-bs-toggle="collapse" data-bs-target="#conditionalCollapseRestrictionPathway" aria-controls="conditionalCollapseRestrictionPathway" >
+                                      <label class="form-check-label" for="id_restriction_1">Use only genes in pathway</label>
+                                  </div>
+                                  <div id="conditionalCollapseRestrictionPathway" class="accordion-collapse collapse" aria-labelledby="accordionHeaderPathway" data-bs-parent="#AccordionRestrictionPathway">
+                                      <div class="accordion-body">
+                                      <div class="autocomplete" >
+                                        {{query.restrictPathway}}
+                                      </div>
+                                    </div>
+                                  </div>
+                              </div>
+                            </div>
+                            
+                            <div id="AccordionRestrictionTissue">
+                              <div class="accordion-item">
+                                  <div class="accordion-header form-check form-switch mt-2" id="accordionHeaderTissue">
+                                      <input class="form-check-input" type="radio" name="constrainGene" id="id_restriction_2" data-bs-toggle="collapse" data-bs-target="#conditionalCollapseRestrictionTissue" aria-controls="conditionalCollapseRestrictionTissue" >
+                                      <label class="form-check-label" for="id_restriction_2">Use only genes in tissue</label>
+                                  </div>
+                                  <div id="conditionalCollapseRestrictionTissue" class="accordion-collapse collapse" aria-labelledby="accordionHeaderTissue" data-bs-parent="#AccordionRestrictionTissue">
+                                      <div class="accordion-body autocomplete">
+                                        <div class="autocomplete" >
+                                          {{query.restrictTissue}}
+                                        </div>
+                                      </div>
+                                  </div>
+                              </div>
+                            </div>
+                            
+                            
+                            <div><button type="submit" class="btn btn-primary btn-block search_buttonAdvanced" id="search_buttonAdvanced">Search</button></div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      {{query.showAdvanced}}
+    </div>
+</body>
+</form>
+
+
+<script type="text/javascript">
+  // Detect if it's the landing page
+  var isLandingPage = window.location.pathname === '/' || window.location.pathname === '/search/';
+  // TODO: add more virus ids if host-virus interactomes are expanded
+  // Store all virus genome IDs in an array
+  var virusGenomeIds = ["2697049"];
+
+  if (isLandingPage) {
+    // Search frontpage
+    var defaultGenomeSelect = "Homo sapiens (9606)"
+    var defaultConfidenceThreshold = "0.95"
+    var defaultGrgLLRThreshold = "1"
+    var defaultExpansionAlgorithm = "group"
+    var defaultExpansionDepth = "1"
+    var defaultPrioritizeNeighbors = "on"
+    var defaultMaxLinkConfidenceThreshold = "0.05"
+    var defaultNodesPerExpansionStep = "15"
+    var defaultTOPASExpansionStep = "2"
+    var defaultHostPathogenNetwork = false
+  } else {
+    // Modify search
+    var defaultGenomeSelect = "{{parameters.genomeSelect}}"
+    var defaultConfidenceThreshold = "{{parameters.confidenceThreshold}}"
+    var defaultGrgLLRThreshold = "{{parameters.grgLLRThreshold}}"
+    var defaultExpansionAlgorithm = "{{parameters.expansionAlgorithm}}"
+    var defaultExpansionDepth = "{{parameters.depth}}"
+    var defaultPrioritizeNeighbors = "{{parameters.prioritizeNeighbors}}"
+    var defaultMaxLinkConfidenceThreshold = "{{parameters.hypergeomCutoff}}"
+    var defaultNodesPerExpansionStep = "{{parameters.maxNodesPerStep}}"
+    var defaultTOPASExpansionStep = "{{parameters.depth}}"
+    var defaultHostPathogenNetwork = "{{ parameters.hostPathogenNetwork }}" === "True" || "{{ parameters.hostPathogenNetwork }}" === true;
+  }
+  
+  // Setup on document ready
+  $(document).ready(function() {
+
+    // Prepare badges for autocomplete selections
+    if ($('#genomeSelect').val()!=""){
+      $('#genomeBadge').html($('#genomeSelect').val()+"<button type='button' class='btn-close btn-close-white' aria-label='Close' onclick='removeBadge("+"\"genomeBadge\",\"genomeSelect\""+")'></button>")
+      $("#genomeSelect").css("color", "black");
+    }
+    if ($('#restrictPathway').val()!=""){
+      $('#pathwayBadge').html($('#restrictPathway').val()+"<button type='button' class='btn-close btn-close-white' aria-label='Close' onclick='removeBadge("+"\"pathwayBadge\",\"restrictPathway\""+")'></button>")
+      $("#restrictPathway").css("color", "white");
+    }
+    if ($('#restrictTissue').val()!=""){
+      $('#tissueBadge').html($('#restrictTissue').val()+"<button type='button' class='btn-close btn-close-white' aria-label='Close' onclick='removeBadge("+"\"tissueBadge\",\"restrictTissue\""+")'></button>")
+      $("#restrictTissue").css("color", "white");
+    }
+    
+    // Set up data for autocompletes
+    autocomplete(document.getElementById("genomeSelect"), {{parameters.allSpecies |safe}}, 'speciesSelect','genomeBadge','genomeSelect');
+    autocomplete(document.getElementById("restrictPathway"), {{parameters.allPathways |safe}}, 'pathwaySelect','pathwayBadge','restrictPathway');
+    
+    // Make tooltips available in the form
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+    // Set up initial values
+    $('#genomeSelect').val(defaultGenomeSelect);
+    $('#confidenceThreshold').attr({ "max" : 1, "min" : 0.5, "step":0.01})
+    $('#confidenceThreshold').val(defaultConfidenceThreshold)
+    $('#confidenceThresholdValue').val(defaultConfidenceThreshold)
+    $('#grgLLRThreshold').attr({ "max" : 2, "min" : 0, "step":0.25})
+    $('grgLLRThreshold').val(defaultGrgLLRThreshold)
+    $('#grgLLRThresholdValue').val(defaultGrgLLRThreshold)
+    
+    if (defaultExpansionAlgorithm=='group') {
+      $('#expansionAlgorithm').prop("checked", true);    
+    } else if (defaultExpansionAlgorithm=='local') {
+      $('#expansionAlgorithm_2').prop("checked", true);
+    } else if (defaultExpansionAlgorithm=='topas') {
+      $('#expansionAlgorithm_1').prop("checked", true);
+    } else if (defaultExpansionAlgorithm=='maxlink') {
+      $('#expansionAlgorithm_0').prop("checked", true);
+    }
+    
+    if (!isLandingPage) {
+      // Check if the "Advanced Search" toggle is not already checked
+      if (!$('#advancedSearchToggle').is(':checked')) {
+        checkAdvancedSearchToggle();  // Check the "Advanced Search" toggle and trigger the change event
+      }
+      
+    }
+    
+    setUpExpansionAlgorithmOptions('');
+
+    // Set up event handlers
+    $(".showadvancedSearch").click(function(){
+      if($("#showAdvancedFlag").val() == 'true')
+        { $("#showAdvancedFlag").val('false'); }
+      else
+        { $("#showAdvancedFlag").val('true'); }
+    });
+
+    $('input[type=radio][name=expansionAlgorithm]').change( setUpExpansionAlgorithmOptions);
+
+    // Function for getting example genomes and proteins
+    $("#exampleButton").on('click', function(){
+      if( $("#geneIdSearch").hasClass('blur') ) {
+          $("#geneIdSearch").removeClass('blur');
+        }
+
+      var genomeSelect = $('#genomeSelect');
+      var genomeSelectVal = genomeSelect.val();
+      var genomeSelectTaxID = genomeSelectVal.match(/\((\d+)\)$/);
+
+      if (genomeSelectVal == "" || !genomeSelectTaxID || !(genomeSelectTaxID[1] in {{ parameters.examplesPerSpecies | safe }})) {
+          var exampleQuery = "{{ parameters.exampleQuery }}";
+          var exampleQueries = exampleQuery.split(",");
+          var example = exampleQueries[Math.floor(Math.random() * exampleQueries.length)];
+          
+          $("#geneIdSearch").val(example);
+          genomeSelect.val("{{ parameters.exampleSpecies }}");
+          $('#genomeBadge').html("{{ parameters.exampleSpecies }}" + "<button type='button' class='btn-close btn-close-white' aria-label='Close' onclick='removeBadge(\"genomeBadge\",\"genomeSelect\")'></button>");
+          genomeSelect.css("color", "black");
+      } else {
+          var examplesPerSpecies = {{ parameters.examplesPerSpecies | safe }};
+          var selectedSp = genomeSelectTaxID[1];
+          var example = examplesPerSpecies[selectedSp];
+          $("#geneIdSearch").val(example);
+      }
+
+      //Sub-network selection
+      $('#nodesPerStepOptions').attr("disabled", false);
+      $('#expansionAlgorithm_3').prop("checked", true);
+      $('#id_prioritizeNeighbors').prop("checked", true);
+      //Comparative interactomics 
+      $('#id_individualEvidenceOnly').prop("checked", true);
+      $('#id_orthologsOnly').prop("checked", true);
+      //Restrictions
+      //Evidence
+      $('#id_constrainEvidence_0').prop("checked", true);
+      $('#id_restriction_0').prop("checked", true);
+      defaultHostPathogenNetwork = false;
+      setUpExpansionAlgorithmOptions('');
+      var textBox = document.getElementById('geneIdSearch');
+      auto_grow(textBox)
+      
+      selectableSpecies();
+      selectableCategories();
+      selectableTissues();
+      // Check if the "Advanced Search" toggle is not already checked
+      if (!$('#advancedSearchToggle').is(':checked')) {
+          checkAdvancedSearchToggle();  // Check the "Advanced Search" toggle and trigger the change event
+      }
+    });
+
+    $('#maxlinkButton').on('click', function(){
+      $('#genomeSelect').val('Homo sapiens (9606)');
+      $('#genomeBadge').html($('#genomeSelect').val()+"<button type='button' class='btn-close btn-close-white' aria-label='Close' onclick='removeBadge("+"\"genomeBadge\",\"genomeSelect\""+")'></button>")
+      $("#genomeSelect").css("color", "black");
+      var q = '{{parameters.exampleQueryMaxLink}}';
+      $("#geneIdSearch").val(q);
+      $('#expansionAlgorithm_0').prop("checked", true);
+      $('#id_prioritizeNeighbors').prop("checked", false);
+      //Comparative interactomics 
+      $('#id_individualEvidenceOnly').prop("checked", true);
+      $('#id_orthologsOnly').prop("checked", true);
+      //Evidence
+      $('#id_constrainEvidence_0').prop("checked", true);
+      //Restrictions
+      $('#id_restriction_0').prop("checked", true);
+      defaultHostPathogenNetwork = false
+      setUpExpansionAlgorithmOptions('')
+      var textBox = document.getElementById('geneIdSearch');
+      auto_grow(textBox)
+      // Check if the "Advanced Search" toggle is not already checked
+      if (!$('#advancedSearchToggle').is(':checked')) {
+          checkAdvancedSearchToggle();  // Check the "Advanced Search" toggle and trigger the change event
+      }
+    });
+
+    $('#topasButton').on('click', function(){
+      $('#genomeSelect').val('Homo sapiens (9606)');
+      $('#genomeBadge').html($('#genomeSelect').val()+"<button type='button' class='btn-close btn-close-white' aria-label='Close' onclick='removeBadge("+"\"genomeBadge\",\"genomeSelect\""+")'></button>")
+      $("#genomeSelect").css("color", "black");
+      var q = '{{parameters.exampleQueryTOPAS}}';
+      $("#geneIdSearch").val(q);
+      $('#expansionAlgorithm_1').prop("checked", true);
+      $('#id_prioritizeNeighbors').prop("checked", false);
+      //Comparative interactomics 
+      $('#id_individualEvidenceOnly').prop("checked", true);
+      $('#id_orthologsOnly').prop("checked", true);
+      defaultHostPathogenNetwork = false
+      setUpExpansionAlgorithmOptions('')
+      var textBox = document.getElementById('geneIdSearch');
+      auto_grow(textBox)
+      // Check if the "Advanced Search" toggle is not already checked
+      if (!$('#advancedSearchToggle').is(':checked')) {
+          checkAdvancedSearchToggle();  // Check the "Advanced Search" toggle and trigger the change event
+      }
+    });
+
+    $('#covidButton').on('click', function(){
+      $('#genomeSelect').val('SARS-CoV-2 (2697049)');
+      $('#genomeBadge').html($('#genomeSelect').val()+"<button type='button' class='btn-close btn-close-white' aria-label='Close' onclick='removeBadge("+"\"genomeBadge\",\"genomeSelect\""+")'></button>")
+      $("#genomeSelect").css("color", "black");
+      var q = '{{parameters.exampleQuerySarsCov2}}';
+      $("#geneIdSearch").val(q);
+      //Sub-network selection
+      $('#nodesPerStepOptions').attr("disabled", false);
+      $('#expansionAlgorithm_3').prop("checked", true);
+      $('#id_prioritizeNeighbors').prop("checked", true);
+      defaultHostPathogenNetwork = true
+      setUpExpansionAlgorithmOptions()
+
+      // Lower confidence
+      $("#confidenceThreshold").val("0.5");
+      $("#confidenceThresholdValue").val("0.5");
+
+      var textBox = document.getElementById('geneIdSearch');
+      auto_grow(textBox)
+      // Check if the "Advanced Search" toggle is not already checked
+      if (!$('#advancedSearchToggle').is(':checked')) {
+          checkAdvancedSearchToggle();  // Check the "Advanced Search" toggle and trigger the change event
+      }
+    });
+
+    selectableSpecies();
+    selectableCategories()
+    selectableTissues()
+    
+    });
+
+    
+  // Function to set up different input parameters for the different expansion algorithm options
+  function setUpExpansionAlgorithmOptions(){
+    var checkedVal = $('input[name="expansionAlgorithm"]:checked').val();
+
+    if (checkedVal=='maxlink'){
+      $('#nodesPerStepLabel').text("Candidates");
+      $('#depthLabel').text("Hypergeometric cutoff");
+      $('#depth_tooltip').tooltip('dispose').tooltip({title: 'The cutoff used for the hypergeometric test of the candidate proteins.'})
+      $('#expansion_tooltip').tooltip('dispose').tooltip({title: 'Number of retrieved candidate proteins.'})
+      $('#profile-tab').attr("disabled", false);
+      $('#disabled-tab').attr("disabled", false);
+      $('#contact-tab').attr("disabled", false);
+
+      $('#nodesPerStepOptions').show().attr("disabled", false).val(defaultNodesPerExpansionStep);
+      $('#nodesPerStepOptionsValue').val(defaultNodesPerExpansionStep);
+      $('#depth').attr({ "max" : 0.1, "min" : 0, "step":"0.01"})
+      $("#depth").val(defaultMaxLinkConfidenceThreshold);
+      $("#depthValue").val(defaultMaxLinkConfidenceThreshold);
+      $("#confidenceThreshold").val(defaultConfidenceThreshold);
+      $("#confidenceThresholdValue").val(defaultConfidenceThreshold);
+      $("#grgLLRThreshold").val(defaultGrgLLRThreshold);
+      $("#grgLLRThresholdValue").val(defaultGrgLLRThreshold);
+
+    }else if(checkedVal=='topas'){
+      $('#depthLabel').text("Number of connectors");
+      $('#depth').attr({ "max" : 3, "min" : 1, "step":"1"})
+      $('#depth_tooltip').tooltip('dispose').tooltip({title: 'Number of potential connector(s) in a shortest path between any two of seeds.'})
+      $('#expansion_tooltip').tooltip('dispose').hide();
+      $('#nodesPerStepLabel').text("");
+      $('#profile-tab').attr("disabled", false);
+      $('#disabled-tab').attr("disabled", true);
+      $('#contact-tab').attr("disabled", true);
+      $('#nodesPerStepOptions').hide().prop("disabled", true);
+
+      $('#depth').val(defaultTOPASExpansionStep)
+      $('#depthValue').val(defaultTOPASExpansionStep)
+      $('#nodesPerStepOptionsValue').val("");
+      $("#confidenceThreshold").val(defaultConfidenceThreshold);
+      $("#confidenceThresholdValue").val(defaultConfidenceThreshold);
+      $("#grgLLRThreshold").val(defaultGrgLLRThreshold);
+      $("#grgLLRThresholdValue").val(defaultGrgLLRThreshold);
+    } else if(['group', 'local'].includes(checkedVal)){
+      $('#nodesPerStepLabel').text("Nodes per expansion step");
+      $('#nodesPerStepOptions').show().attr("disabled", false).val(defaultNodesPerExpansionStep);
+      $('#nodesPerStepOptionsValue').val(defaultNodesPerExpansionStep);
+      $('#depthLabel').text("Expansion depth");
+      $('#depth').attr({ "max" : 3,"min" : 0, "step":"1"})
+      $("#depth").val(defaultExpansionDepth);
+      $("#depthValue").val(defaultExpansionDepth);
+      $('#depth_tooltip').tooltip('dispose').tooltip({title: 'How many steps from the query genes the sub-network spans. If the expansion depth is 0 only links between query genes are shown. With a query depth of 1 only genes directly linked to query genes are shown. At an expansion depth greater than 1 indirect links are shown.'})
+      $('#expansion_tooltip').tooltip('dispose').tooltip({title: 'Maximal number of nodes added per expansion step.'})
+      $("#confidenceThreshold").val(defaultConfidenceThreshold);
+      $("#confidenceThresholdValue").val(defaultConfidenceThreshold);
+      $("#grgLLRThreshold").val(defaultGrgLLRThreshold);
+      $("#grgLLRThresholdValue").val(defaultGrgLLRThreshold);
+    }
+
+    if(defaultHostPathogenNetwork==true){
+      $('#profile-tab').attr("disabled", true);
+      $('#disabled-tab').attr("disabled", true);
+      $('#contact-tab').attr("disabled", true);
+    } else if (checkedVal=='topas' && defaultHostPathogenNetwork==false){
+      $('#profile-tab').attr("disabled", false);
+      $('#disabled-tab').attr("disabled", true);
+      $('#contact-tab').attr("disabled", true);
+    } else {
+      $('#profile-tab').attr("disabled", false);
+      $('#disabled-tab').attr("disabled", false);
+      $('#contact-tab').attr("disabled", false);
+    }
+
+    if(checkedVal!='group') {
+      $('#id_prioritizeNeighbors').prop("checked", false);
+      $('#id_prioritizeNeighbors').prop("disabled", true);      
+    }else{
+      $('#id_prioritizeNeighbors').prop("checked", true);
+      $('#id_prioritizeNeighbors').prop("disabled", false);
+    }
+  }
+
+  // Function to set up changes to the form according to the selected species
+  function selectableSpecies() {
+      var genomeId = $('#genomeSelect').val();
+
+      // Check if a species is selected (genomeId is not empty)
+      if (genomeId && genomeId !== "") {
+          // Existing logic when a species is selected
+          
+          // Check if the genome ID starts with an asterisk and update the text accordingly
+          if (genomeId.startsWith("*")) {
+              $('#orthologyTransferredSpeciesText').text("* The network for this species is transferred from another species using orthologs.");
+              var transferredSpecies = true;
+          } else {
+              $('#orthologyTransferredSpeciesText').text("");
+              var transferredSpecies = false;
+          }
+
+          // Extract the last element within parentheses
+          var lastParenthesisContent = genomeId.match(/\(([^)]+)\)(?!.*\([^)]*\))/);
+          if (lastParenthesisContent) {
+              genomeId = lastParenthesisContent[1];
+          }
+
+          // Hide or show checkboxes based on the genome ID
+          if (genomeId === "0") {
+              $('input[type=checkbox][name=comparativeGenomes]').each(function() {
+                  $(this).hide();
+                  $(this).parent('label').hide();
+              });
+          } else {
+              $('input[type=checkbox][name=comparativeGenomes]').each(function() {
+                  if (this.value === genomeId) {
+                      $(this).hide();
+                      $(this).parent('label').hide();
+                      $(this).prop("checked", false);
+                  } else {
+                      $(this).show();
+                      $(this).parent('label').show();
+                  }
+              });
+          }
+
+          // Check if genomeId is in the list of virus IDs
+          var defaultHostPathogenNetwork = virusGenomeIds.includes(genomeId);
+          var checkedVal = $('input[name="expansionAlgorithm"]:checked').val();
+          if ((defaultHostPathogenNetwork === true || transferredSpecies === true) && genomeId != "") {
+              $('#profile-tab').attr("disabled", true);
+              $('#disabled-tab').attr("disabled", true);
+              $('#contact-tab').attr("disabled", true);
+          } else if (checkedVal === 'topas' && defaultHostPathogenNetwork === false) {
+              $('#profile-tab').attr("disabled", false);
+              $('#disabled-tab').attr("disabled", true);
+              $('#contact-tab').attr("disabled", true);
+          } else {
+              $('#profile-tab').attr("disabled", false);
+              $('#disabled-tab').attr("disabled", false);
+              $('#contact-tab').attr("disabled", false);
+          }
+
+      } else {
+          // If no species is selected (genomeId is empty or null)
+          $('#orthologyTransferredSpeciesText').text("");
+          $('input[type=checkbox][name=comparativeGenomes]').each(function() {
+              $(this).hide();
+              $(this).parent('label').hide();
+              $(this).prop("checked", false); // Uncheck checkboxes if needed
+          });
+          $('#profile-tab').attr("disabled", false);
+          $('#disabled-tab').attr("disabled", false);
+          $('#contact-tab').attr("disabled", false);
+      }
+  }
+
+  // Trigger selectableSpecies() when the species selection changes
+  $('#genomeSelect').on('change', function() {
+      selectableSpecies();
+  });
+
+  // Also check when tags are removed, or all species are unselected
+  $('#genomeSelect').on('select2:unselecting', function() {
+      selectableSpecies();
+  });
+
+
+  // Function to set up changes to the form according to the selected evidence restriction types
+  function selectableCategories(){
+    var initialVal = $('#id_constrainGoldStandard_0').val();
+    var genomeId= $('#genomeSelect').val()
+
+    if(genomeId.includes("(")){
+      genomeId=genomeId.split("(")[1].replace(")","")
+    }
+    $('#id_categoryID option').each(function() {
+      var taxid = this.value;
+      if (this.value != "all"){
+        taxid = this.value.split("-")[1];
+      }
+      if (taxid === genomeId || taxid === "all"){
+        $(this).show();
+      }else{
+        $(this).hide();
+      }
+    });
+    if (initialVal!='all'){
+      $('#id_categoryID').val(initialVal);
+    }
+  
+    var numSpecies = $('#genomeSelect option').length*18.7
+  }
+
+  // Function to set up selectable tissues to restrict by
+  function selectableTissues(){
+    var genomeId= $('#genomeSelect').val()
+    if(genomeId.includes("(")){
+      genomeId=genomeId.split("(")[1].replace(")","")
+    }
+    var all = {{parameters.allTissues |safe}}
+    var spList = all[genomeId]
+    autocomplete(document.getElementById("restrictTissue"), spList, 'pathwaySelect','tissueBadge','restrictTissue');
+  }
+
+  function removeBadge(badgeId, inputId){
+    if (inputId=="PATHWAYFILTER"){
+      $('#'+badgeId).remove();
+      filterNetworkByPathway("",badgeId)
+      selectedPathway=pathwayLookup[badgeId]
+      // Check if the selected pathway is not already in the selectedPathways array
+      if (!allFilterPathwayName.includes(selectedPathway)) {
+        // Add the selected pathway to the selectedFilterPathways array
+        allFilterPathwayName.push(selectedPathway);
+      }
+      allFilterPathwayName.sort();
+      // Update the autocomplete dropdown with the filtered options
+      autocomplete(document.getElementById("filterPathway"), allFilterPathwayName, 'filterPathway','pathwayFilterBadge','filterPathway');
+
+    }else if (inputId=="TISSUEFILTER"){
+      $('#'+badgeId).remove();
+      filterNetworkByTissue("",badgeId.replace(/_/g,' '))
+
+      selectedTissue=tissueLookup[badgeId]
+      // Check if the selected pathway is not already in the selectedTissue array
+      if (!allFilterTissueName.includes(selectedTissue)) {
+        // Add the selected pathway to the allFilterTissueName array
+        allFilterTissueName.push(selectedTissue);
+      }
+      allFilterTissueName.sort();
+      // Update the autocomplete dropdown with the filtered options
+      autocomplete(document.getElementById("filterTissue"), allFilterTissueName, 'filterTissue','tissueFilterBadge','filterTissue');
+
+    }else if (inputId=="PATHWAYCOLOR"){
+      $('#'+badgeId).remove();
+      // change color to default
+      pathwayColor_dict[badgeId]=defaultNodeColor
+      setNodeColorByAttribute(badgeId, defaultNodeColor, inputId)
+
+      selectedPathway=pathwayLookup[badgeId]
+      // Check if the selected pathway is not already in the selectedPathways array
+      if (!allColorPathwayName.includes(selectedPathway)) {
+        // Add the selected pathway to the selectedFilterPathways array
+        allColorPathwayName.push(selectedPathway);
+      }
+      allColorPathwayName.sort();
+
+      pathwayColor_badges = pathwayColor_badges.filter(function(id) {
+        return id !== badgeId;
+      });
+      console.log(pathwayColor_badges)
+      
+      // Update the autocomplete dropdown with the filtered options
+      autocomplete(document.getElementById("colorPathway"), allColorPathwayName, 'colorPathway','pathwayColorBadge','colorPathway');
+        
+    }else if (inputId=="TISSUECOLOR"){
+      $('#'+badgeId).remove();
+      // change color to default
+      tissueColor_dict[badgeId]=defaultNodeColor
+      setNodeColorByAttribute(badgeId, defaultNodeColor, inputId)
+      
+      selectedTissue=tissueLookup[badgeId]
+      // Check if the selected pathway is not already in the selectedTissue array
+      if (!allColorTissueName.includes(selectedTissue)) {
+        // Add the selected pathway to the allColorTissueName array
+        allColorTissueName.push(selectedTissue);
+      }
+      allColorTissueName.sort();
+      
+      tissueColor_badges = tissueColor_badges.filter(function(id) {
+        return id !== badgeId;
+      });
+
+      // Update the autocomplete dropdown with the filtered options
+      autocomplete(document.getElementById("colorTissue"), allColorTissueName, 'colorTissue','tissueColorBadge','colorTissue');
+    }else{
+      $('#'+badgeId).html("")
+      $('#'+inputId).val("")
+      $("#"+inputId).css("color", "black");
+    }
+  }
+
+  // Function to check the "Advanced Search" toggle
+  function checkAdvancedSearchToggle() {
+    $('#advancedSearchToggle').prop('checked', true);
+    var collapseElement = document.getElementById('collapseOne');
+    new bootstrap.Collapse(collapseElement, {
+            toggle: true
+        }).show();
+  }
+
+  document.getElementById('advancedSearchToggle').addEventListener('change', function () {
+          var collapseElement = document.getElementById('collapseOne');
+          if (this.checked) {
+              new bootstrap.Collapse(collapseElement, {
+                  toggle: true
+              }).show();
+          } else {
+              new bootstrap.Collapse(collapseElement, {
+                  toggle: true
+              }).hide();
+          }
+      });
+
+  // Add dynamically growing option to text box
+  function auto_grow(element) {
+    element.style.height = "5px";
+    element.style.height = (element.scrollHeight) + "px";
+  }
+  
+  document.addEventListener("DOMContentLoaded", function () {
+  // Function to manage accordion state based on radio button selection
+  function manageAccordionState(name) {
+      const radioButtons = document.querySelectorAll('input[name="' + name + '"]');
+      
+      radioButtons.forEach(radio => {
+          const target = document.querySelector(radio.getAttribute('data-bs-target'));
+
+          if (radio.checked) {
+              // Show the associated accordion section
+              if (target) {
+                  target.classList.add('show');
+              }
+          } else {
+              // Hide the associated accordion section
+              if (target) {
+                  target.classList.remove('show');
+              }
+          }
+      });
+  }
+
+  // Add event listeners to all radio buttons
+  const radioGroups = ['expansionAlgorithm', 'constrainGoldStandard', 'constrainGene', 'constrainEvidence']; // Add more groups if needed
+
+  radioGroups.forEach(group => {
+      const radioButtons = document.querySelectorAll('input[name="' + group + '"]');
+      
+      radioButtons.forEach(radio => {
+          radio.addEventListener('change', function() {
+              // Check if the clicked radio button is already checked
+              if (this.checked) {
+                  manageAccordionState(group);
+              }
+          });
+      });
+
+      // Initial check to set the correct state on page load
+      manageAccordionState(group);
+  });
+
+  // Hide the overlay and spinner when the page loads or is shown again (e.g., after using the back button)
+  window.addEventListener('pageshow', function() {
+      document.getElementById('overlay').style.display = 'none';
+  });
+
+  // Show the overlay and spinner only if the form is valid
+  document.getElementById('search_button').addEventListener('click', function(event) {
+      // Prevent the form from submitting immediately
+
+      // Get the values of the required fields
+      var geneQueryValue = document.getElementById('geneIdSearch').value.trim();
+      var genomeSelectValue = document.getElementById('genomeSelect').value.trim();
+
+      // Check if both required fields are filled
+      if (geneQueryValue !== "" && genomeSelectValue !== "") {
+          // Show the overlay and spinner
+          document.getElementById('overlay').style.display = 'flex';
+      } 
+  });
+
+  // Ensure that the spinner does not show up unnecessarily on advanced search buttons
+  document.querySelectorAll('.search_buttonAdvanced').forEach(function(button) {
+      button.addEventListener('click', function(event) {
+          var geneQueryValue = document.getElementById('geneIdSearch').value.trim();
+          var genomeSelectValue = document.getElementById('genomeSelect').value.trim();
+
+          if (geneQueryValue !== "" && genomeSelectValue !== "") {
+              // Show the overlay and spinner
+              document.getElementById('overlay').style.display = 'flex';
+          } 
+      });
+  });
+
+  
+});
+
+
+
+  </script>

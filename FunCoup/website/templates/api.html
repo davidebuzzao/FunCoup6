@@ -1,0 +1,121 @@
+{% include "./header.html" %}
+  {% load static %}
+
+<!-- This page contains instructions on how to use tha funcoup apis, and how to download files over urls (not using the download button) -->
+<!-- This page contains instructions on how to use the FunCoup APIs, and how to download files over URLs (not using the download button) -->
+<div class="container pt-5">
+  <h2>The FunCoup API</h2>
+  <p>The FunCoup API allows users to download or access data from the FunCoup database programmatically, without using the graphical interface of the website.</p>
+
+  <h5>Downloading Networks as TSV Files</h5>
+  <p>To download a full network file for a given species, use the following URL. Replace the text within brackets with the species name.</p>
+  <div class="code">
+    <p>
+      https://funcoup6.scilifelab.se/download/network&FC6.0_<code>&lt;species&gt;</code>_full.gz
+    </p>
+    <p>For example:</p>
+    <p>
+      https://funcoup6.scilifelab.se/download/network&FC6.0_E.coli_full.gz
+    </p>
+  </div>
+  <br>
+  <p>To download a compact network file for a given species, use the following URL, replacing the text within brackets with the species name.</p>
+  <div class="code">
+    <p>
+      https://funcoup6.scilifelab.se/download/network&FC6.0_<code>&lt;species&gt;</code>_compact.gz
+    </p>
+    <p>For example:</p>
+    <p>
+      https://funcoup6.scilifelab.se/download/network&FC6.0_E.coli_compact.gz
+    </p>
+  </div>
+  <br>
+
+  <h5>Obtain Mapping Information for a Gene</h5>
+  <p>The <code>geneQuery</code> API endpoint returns all mapping information included in the FunCoup database for a given gene. It requires a gene name and a species TaxID as input, and it provides a text-based list of all mappings for the queried gene.</p>
+  <div class="code">
+    <p>
+      https://funcoup6.scilifelab.se/api/tsv/geneQuery/<code>&lt;taxid&gt;</code>&<code>&lt;geneId&gt;</code>/
+    </p>
+    <p>For example:</p>
+    <p>
+      https://funcoup6.scilifelab.se/api/tsv/geneQuery/9606&MYC/
+    </p>
+  </div>
+  <br>
+  <p>The returned list will contain the following headers:</p>
+  <div class="code">
+    <p>#Keywords&nbsp;&nbsp;internalGeneID&nbsp;&nbsp;geneID&nbsp;&nbsp;identifierType</p>
+  </div>
+  <br>
+
+  <h5>Obtain Species Information</h5>
+  <p>The <code>species</code> API endpoint provides information on all species that have a FunCoup network. The data can be retrieved in either TSV or JSON format, depending on the endpoint used.</p>
+  <div class="code">
+    <p>For TSV format:</p>
+    <p>https://funcoup6.scilifelab.se/api/tsv/species/</p>
+    <br>
+    <p>For JSON format:</p>
+    <p>https://funcoup6.scilifelab.se/api/json/species/</p>
+  </div>
+  <br>
+  <p>The returned list will contain the following headers:</p>
+  <div class="code">
+    <p>#Scientific_name&nbsp;&nbsp;Common_name&nbsp;&nbsp;NCBI_taxonomy&nbsp;&nbsp;Origin</p>
+  </div>
+  <br>
+
+  <h5>Obtain Network of Query Gene(s)</h5>
+  <p>The <code>network</code> API endpoint retrieves a network of query genes based on various parameters. This data is returned in JSON format. The following URL parameters are required:</p>
+  <ul>
+    <li><code>&lt;geneId&gt;</code>: Gene(s) to query (e.g. MYC, or MYC,JUN,FOS).</li>
+    <li><code>&lt;taxid&gt;</code>: NCBI taxonomy ID for genome selection (e.g. 9606).</li>
+    <li><code>&lt;confidenceThreshold&gt;</code>: Link confidence threshold between 0.5 and 1.</li>
+    <li><code>&lt;directionThreshold&gt;</code>: Direction confidence threshold > 0.</li>
+    <li><code>&lt;depth&gt;</code>: Depth of the network expansion should be 0, 1, 2 or 3.</li>
+    <li><code>&lt;nodesPerStep&gt;</code>: Nodes per step in the network expansion > 0.</li>
+    <li><code>&lt;expansionAlgorithm&gt;</code>: Algorithm used for network expansion. It can be: group, local, maxlink or topas.</li>
+    <li><code>&lt;prioritizeNeighbors&gt;</code>: Whether to prioritize neighbors in the network when expansionAlgorithm=group. It can be: on or off</li>
+    <li><code>&lt;comparativeTaxid&gt;</code>: NCBI taxonomy ID for comparative interactomics (e.g. '', or 10090, or 10090,10116).</li>
+    <li><code>&lt;individualEvidenceOnly&gt;</code>: Whether to use individual evidence only. It can be: on or off</li>
+    <li><code>&lt;orthologsOnly&gt;</code>: Whether to include orthologs only. It can be: on or off</li>
+  </ul>
+  <div class="code">
+    <p>https://funcoup6.scilifelab.se/api/json/network/<code>&lt;geneId&gt;</code>&<code>&lt;taxid&gt;</code>&</code><code>&lt;confidenceThreshold&gt;</code>&<code>&lt;directionThreshold&gt;</code>&<code>&lt;depth&gt;</code>&<code>&lt;nodesPerStep&gt;</code>&<code>&lt;expansionAlgorithm&gt;</code>&<code>&lt;prioritizeNeighbors&gt;</code>&<code>&lt;comparativeTaxid&gt;</code>&<code>&lt;individualEvidenceOnly&gt;</code>&<code>&lt;orthologsOnly&gt;</code>&/</p>
+    <p>For example:</p>
+    <p>https://funcoup6.scilifelab.se/api/json/network/JUN&9606&0.9&1&1&15&group&on&''&on&on/</p>
+  </div>
+
+  <p>FunCoup 6 is using UniProt ID as primary identifiers. If you are using a different gene vocabulary (e.g. Gene Symbol, Ensembl, NCBI), 
+    you might want to first resolve query ambiguities using the <code>gene</code> API endpoint, and then use the <code>network</code> API endpoint as previously shown.
+    This data is returned in JSON format. The following URL parameters are required:</p>
+  <ul>
+    <li><code>&lt;geneId&gt;</code>: Gene(s) to query (e.g. MYC, or MYC,JUN,FOS).</li>
+    <li><code>&lt;taxid&gt;</code>: NCBI taxonomy ID for genome selection (e.g. 9606).</li>
+  </ul>
+  <div class="code">
+    <p>https://funcoup6.scilifelab.se/api/json/gene/<code>&lt;geneId&gt;</code>&<code>&lt;taxid&gt;</code></p>
+    <p>For example:</p>
+    <p>https://funcoup6.scilifelab.se/api/json/gene/JUN,MIR,FunCoup&9606/</p>
+  </div>
+  <br>
+  <br>
+
+  <!-- <h5>Obtain Link Details</h5>
+  <p>The <code>linkdetails</code> API endpoint retrieves detailed information about a link between two genes or proteins. The data is returned in JSON format. The following URL parameters are required:</p>
+  <ul>
+    <li><code>&lt;idA&gt;</code>: First gene or protein identifier.</li>
+    <li><code>&lt;idB&gt;</code>: Second gene or protein identifier.</li>
+    <li><code>&lt;goldstandard&gt;</code>: Whether to use a gold standard for validation.</li>
+  </ul>
+  <div class="code">
+    <p>https://funcoup6.scilifelab.se/api/json/linkdetails/<code>&lt;idA&gt;</code>&<code>&lt;idB&gt;</code>&<code>&lt;goldstandard&gt;</code></p>
+  </div>
+  <br> -->
+
+  <h5>Cytoscape App Integration</h5>
+  <p>The FunCoup API is used by our Cytoscape app to retrieve and visualize network data. The app is available as a JAR file at our <a href="https://bitbucket.org/sonnhammergroup/funcoup_cytoscape/" target="_blank">Bitbucket repository</a> and can also be downloaded from the <a href="https://apps.cytoscape.org/" target="_blank">Cytoscape App Store</a>.</p>
+</div>
+
+
+{% include "./footer.html" %}

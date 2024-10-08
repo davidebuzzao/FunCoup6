@@ -1,0 +1,21 @@
+{% include "./header.html" %}
+{% load static %}
+<div class="container pt-5">
+<!-- This page contains downloads for archived versions of FunCoup. files are picked up from the networks folder under static. Files for all previsous versions should be put there, following the naming convention -->
+<h4>Download previous versions of FunCoup</h4>
+  {% for version in files %}
+    <h5 class="pt-4">{{version.version}}</h5>
+    {% for file in version.filesList %}
+    <div class="row w-50">
+      <div class="col">
+        <a rel="nofollow" href="{{file.url}}">{{file.name}}</a>
+      </div>
+      <div class="col">
+        {{file.size}}
+      </div>
+    </div>
+    {% endfor %}
+  {% endfor %}
+    <br>
+</div>
+{% include "./footer.html" %}

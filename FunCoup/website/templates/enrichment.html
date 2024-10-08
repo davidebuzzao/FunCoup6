@@ -1,0 +1,153 @@
+<!-- This file contains information shown in the enrichments tab under the network view -->
+<!-- On pageload of the network, it starts to fetch information using ajax and fills tables in the 'enrichmentContent'-div -->
+<div class="networkTabContainer">
+    <div class="enrichmentContent" id="enrichmentContent">
+        <div class="enrichmentText">
+            <p>Getting enriched pathways for your subnetwork genes. This could take a few moments...</p>
+            <div class="enrichmentSpinner">
+              <div class='spinner-border' role='status'><span class='sr-only'></span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+  // Function called from pageload of the network.html
+  // Makes an ajax call to get enrichments, and fills the returned information into a table, and attaches it to the 'enrichmentContent'-div
+  function getEnrichments(){
+
+    var nodesPerSpecies={}
+    var uniprotNodesPerSpecies={}
+    for (let i = 0; i < nodes.length; i++) {
+      var nodeSpecies=nodes[i].species.taxId.toString();
+      var nodeId=nodes[i].id
+      var nodeUniProt=nodes[i].uniprotID
+      if (!(nodeSpecies in nodesPerSpecies)){
+        nodesPerSpecies[nodeSpecies]=[]
+      } 
+      nodesPerSpecies[nodeSpecies].push(nodeId)
+      if (!(nodeSpecies in uniprotNodesPerSpecies)){
+        uniprotNodesPerSpecies[nodeSpecies]=[]
+      } 
+      uniprotNodesPerSpecies[nodeSpecies].push(nodeUniProt)
+    }
+    var speciesAsString=""
+    var nodesAsString=""
+    for (const [sp, n] of Object.entries(nodesPerSpecies)) {
+      speciesAsString+=sp+"|"
+      var queryGenes=n.join(',')
+      nodesAsString+=queryGenes+"|"
+    }
+    $.ajax({
+    type: "post",
+    url: '/enrichment/' + nodesAsString.slice(0, -1) + '&' + speciesAsString.slice(0, -1),
+    data: {"csrfmiddlewaretoken" : "{{csrf_token}}"},
+    success: function(response) {
+      var newContent = "";
+      newContent += "<div class='accordion interactionsAccordion' id='enrichmentAccordion'>";
+      for (let i = 0; i < response.enrichmentsPerSpecies.length; i++) {
+        var speciesTaxId = response.enrichmentsPerSpecies[i].taxID;
+        var uniprotIDs = uniprotNodesPerSpecies[speciesTaxId].join(",");
+        var enrichments = response.enrichmentsPerSpecies[i].pathways;
+        var speciesName = response.enrichmentsPerSpecies[i].speciesName;
+        var speciesNameShort = response.enrichmentsPerSpecies[i].speciesNameShort;
+        
+        newContent += "<div class='accordion-item'>";
+        newContent += "<h2 class='accordion-header'> <button class='accordion-button InteractorAccordion' type='button' data-bs-toggle='collapse' data-bs-target='#enrichmentAccordion_" + speciesTaxId + "' aria-expanded='true' aria-controls='enrichmentAccordion'>Enriched Pathways (" + speciesName + ")</button></h2>";
+        newContent += "<div id='enrichmentAccordion_" + speciesTaxId + "' class='accordion-collapse collapse show'><div class='accordion-body'>";
+
+        // Adding a unique class 'no-padding-table' to the table
+        newContent += "<table class='table small no-padding-table'><tr><th colspan='8' class='notBold'>Enriched KEGG pathways for your subnetwork genes, obtained using <a href='https://doi.org/10.1038/s41598-020-70239-z' target='_blank'>ANUBIX</a> and <a href='https://doi.org/10.1186/gb-2003-4-10-r70' target='_blank'>EASE</a> ";
+        newContent += "<button class='btn btn-secondary btn-sm mb-2 downloadEATsvButton' id='downloadEATsvButton_" + speciesTaxId + "' data-species-id='" + speciesTaxId + "'>Export as .tsv</button>";  
+        newContent += "<button class='btn btn-secondary btn-sm mb-2 ms-2 pathbixButton' onClick=\"window.open('https://pathbix.sbc.su.se/results?clustering=false&pathway=KEGG&cutoff=0.8&species=" + speciesNameShort + "&genes=" + uniprotIDs + "', '_blank');\">View in PathBIX</button></th>";
+        newContent += "</tr><tr> <th colspan='1'>Pathway Name</th> <th colspan='1'>Pathway ID</th><th colspan='3'>ANUBIX</th><th colspan='3'>EASE</th></tr>";
+        newContent += "<tr class='small'> <th colspan='1'></th> <th colspan='1'></th> <th colspan='1'>FDR</th> <th colspan='1'>FWER</th> <th colspan='1'>OBS/EXP Crosstalk</th> <th colspan='1'>FDR</th> <th colspan='1'>FWER</th> <th colspan='1'>Overlap</th></tr>";
+
+        for (let j = 0; j < enrichments.length; j++) {
+          var e = enrichments[j];
+          newContent += "<tr><td> <a href='https://www.genome.jp/entry/map" + e.pathway_id + "' target='_blank'>" + e.pathway_name + "</a></td>";
+          newContent += "<td> <a href='https://www.genome.jp/entry/map" + e.pathway_id + "' target='_blank'>" + e.pathway_id + "</a></td>";
+          if (e.anubix != "Undefined") {
+            newContent += "<td>" + e.anubix.fdr.toExponential(2) + "</td>";
+            newContent += "<td>" + e.anubix.fwer.toExponential(2) + "</td>";
+            newContent += "<td>" + e.anubix.observed_crosstalk + "/" + e.anubix.expected_crosstalk + "</td>";
+          } else {
+            newContent += "<td colspan='1'>-</td>";
+            newContent += "<td colspan='1'>-</td>";
+            newContent += "<td colspan='1'>-</td>";
+          }
+          if (e.ease != "Undefined") {
+            newContent += "<td>" + e.ease.fdr.toExponential(2) + "</td>";
+            newContent += "<td>" + e.ease.fwer.toExponential(2) + "</td>";
+            newContent += "<td>" + e.ease.overlap + "</td>";
+          } else {
+            newContent += "<td colspan='1'>-</td>";
+            newContent += "<td colspan='1'>-</td>";
+            newContent += "<td colspan='1'>-</td>";
+          }
+        }
+        newContent += "</table>";
+        newContent += "</div></div></div>";
+      }
+      newContent += "</div>";
+
+      var enrichmentContent = document.getElementById('enrichmentContent');
+      var child = enrichmentContent.lastElementChild;  
+      while (child) { 
+        enrichmentContent.removeChild(child); 
+        child = enrichmentContent.lastElementChild; 
+      } 
+      enrichmentContent.insertAdjacentHTML('beforeend', newContent);
+
+      // Add event listeners for each download button
+      document.querySelectorAll('.downloadEATsvButton').forEach(function(button) {
+        button.addEventListener('click', function() {
+          var speciesTaxId = this.getAttribute('data-species-id');
+          var accordionId = 'enrichmentAccordion_' + speciesTaxId;
+          var tsvContent = "Pathway_Name\tPathway_ID\tANUBIX_FDR\tANUBIX_FWER\tANUBIX_OBS/EXP\tEASE_FDR\tEASE_FWER\tEASE_OVERLAP\n";  // Header row
+
+          // Get the specific table within the accordion panel
+          var table = document.querySelector(`#${accordionId} table`);
+          if (table) {
+            var rows = table.querySelectorAll('tr');
+
+            rows.forEach(function(row) {
+              var cols = row.querySelectorAll('td');
+              
+              // Check if 
+              if (cols[3] || cols[6]) {
+                  // Extract the content of each column, or '-' if the column does not exist
+                  var pathwayName = cols[0] ? cols[0].innerText : '-';
+                  var pathwayID = cols[1] ? cols[1].innerText : '-';
+                  var anubixFDR = cols[2] ? cols[2].innerText : '-';
+                  var anubixFWER = cols[3] ? cols[3].innerText : '-';
+                  var anubixObsExp = cols[4] ? cols[4].innerText : '-';
+                  var easeFDR = cols[5] ? cols[5].innerText : '-';
+                  var easeFWER = cols[6] ? cols[6].innerText : '-';
+                  var easeOverlap = cols[7] ? cols[7].innerText : '-';
+
+                  // Join the columns into a TSV row
+                  var rowData = [pathwayName, pathwayID, anubixFDR, anubixFWER, anubixObsExp, easeFDR, easeFWER, easeOverlap].join("\t");
+                  tsvContent += rowData + "\n";
+              }
+            });
+          } else {
+            console.error('Table not found in the specified accordion panel.');
+          }
+
+          var blob = new Blob([tsvContent], { type: 'text/tab-separated-values;charset=utf-8;' });
+          var link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'FunCoup_enrichment_' + speciesTaxId + '.tsv';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      });
+    }
+  });
+
+}
+
+</script>

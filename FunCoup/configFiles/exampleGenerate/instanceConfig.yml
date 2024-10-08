@@ -1,0 +1,8 @@
+instance:
+  species: ['9606','10090','3702','83333','224308','9913','10116','559292','9031','7227','7955','7719','9615','6239','36329','284812','39947','9823','44689','243232','273057','83332']
+  goldStandard: ['PPI','Complex','Metabolic','Signaling','Regulatory','Operon']
+  evidence: ['GRG','GIN','PEX','PIN','DOM','MIR','TFB','PHP','MEX','SCL']
+  
+  hostPathogen: [['9606','2697049','SARS-CoV-2']]
+  hostPathogenEvidence: ['PIN']
+  hostPathogenGoldStandard: ['PPI','Complex']

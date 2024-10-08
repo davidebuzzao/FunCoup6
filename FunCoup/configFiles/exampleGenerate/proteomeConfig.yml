@@ -1,0 +1,38 @@
+genome:
+  urlUniProtReadme: https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/README
+  urlUniProtDownload: https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/
+  version: 2022-02
+  addMappings: False
+  mappingsOfInterest:
+    Gene_Name: Gene_Symbol
+    GeneID: Gene_ID
+    Ensembl_PRO: Ensembl_Protein
+    Ensembl: Ensembl
+    EnsemblGenome: Ensembl
+    EnsemblGenome_PRO: Ensembl_Protein
+    Gene_Synonym: Alt_Gene_Name
+    KEGG: KEGG
+    UniProtKB-ID: UniProtKB_ID
+    Gene_ORFName: Gene_ORFName
+    Gene_OrderedLocusName: Gene_OrderedLocusName
+    MGI: MGI
+    RGD: RGD
+    SGD: SGD
+    ZFIN: ZFIN
+    WormBase: WormBase
+    dictyBase: dictyBase
+    Ensembl_TRS: Ensembl_Transcript
+    EnsemblGenome_TRS: Ensembl_Transcript
+    RefSeq_NT: RefSeq_NT
+
+ortholog:
+  version: 9.0
+  orthologsUrl: http://octa2.scilifelab.se:81/download/sqltable/TAXIDA&TAXIDB&prot #https://inparanoidb.sbc.su.se/download/sqltable/TAXIDA&TAXIDB&prot
+  orthologCollectionMethod: file  # Options: file, url. If option file is selected, all inparanoid
+                                  # sqltable files (for all species versus all species) must be available
+                                  # under data/tmp/resultsInParanoid. This is a lot faster than fetcing
+                                  # from the orthologsUrl. For InParanoidb9, the files can be copied from
+                                  # octa2 at: /scratch/inparanoiDB9/inparanoidb9/inparanoid9_app/output_domainoid/resultsInParanoid
+                                  # if option url is selected, all ortholog information will be collected
+                                  # through the inparanoiDB website using the url defined in orthologsUrl
+  # orthologyTransfer: ['GIN','MEX','MIR','PEX','PIN','QMS','TFB']

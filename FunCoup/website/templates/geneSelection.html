@@ -1,0 +1,151 @@
+{% include "./header.html" %}
+{% load static %}
+
+<!-- The gene selection page is loaded from the python network-function in case mappings couldnt be made properly.  -->
+<!-- As soon as a uniprot ID is selected here, a redirect is made to the network view without the missing/multi mappings attached to the url to show the network -->
+<div class="container pt-5">
+    <h4 class="pt-5">We found ambiguous or missing mappings for your query proteins</h4>
+    <p>Please select the identifiers you would like to use for your query and click "Continue with selection" to get to your resulting subnetwork.</p>
+
+    <!-- <button type="button" class="btn btn-secondary mb-5 floatright" onClick="goToResults()">Continue with selection</button> -->
+    <button type="button" class="btn btn-primary btn-block search_button floatright" onClick="goToResults()">Continue with selection</button>
+
+    <!-- Spinner and overlay -->
+    <div id="overlay">
+        <div class="dot-spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        </div>
+
+    <!-- First listing all identifiers that could be properly mapped -->
+    {% if normalMappings %}
+        <h6 class="pt-5">We found the following unique mappings for your query proteins</h6>
+        <table class="table small">
+            <tr>
+                <th></th>
+                <th>Query</th>
+                <th>UniProt ID</th>
+                <th>Protein description</th>
+            </tr>
+            {% for mapping in normalMappings %}
+                <div>
+                <tr>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" name="geneSelector" type="checkbox" value="{{mapping.input}}" checked>
+                        </div>
+                    </td>
+                    <td>{{mapping.input}}</td>
+                    <td>{{mapping.output}}</td>
+                    <td>{{mapping.description}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    
+    <!-- Then listing all identifiers that need a user selection -->
+    {% if multiMappings %}
+        <h6 class="pt-5">We found the following ambiguous mappings for your query proteins. Please select one or more proteins from the list</h6>
+        {% for genemapping in multiMappings %}
+        <table class="table small">
+            <tr>
+                <th></th>
+                <th>Query</th>
+                <th>Alternative identifiers</th>
+                <th>UniProt ID</th>
+                <th>Protein description</th>
+            </tr>
+            {% for mapping in genemapping %}
+                <div>
+                <tr>
+                    <td>
+                        <div class="form-check">
+                            {% if forloop.first %}
+                                <input class="form-check-input" name="geneSelector" type="checkbox" value="{{mapping.output}}" checked>
+                            {% else %}
+                                <input class="form-check-input" name="geneSelector" type="checkbox" value="{{mapping.output}}">
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>{{mapping.input}}</td>
+                    <td>
+                    {% for m in mapping.database %}
+                        {{m}}<br>
+                    {% endfor %}
+                    </td>
+                    <td>{{mapping.output}}</td>
+                    <td>{{mapping.description}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Finally listing all identifiers that could not be mapped at all. This page should never be shown if ONLY missing mappings occured -->
+    {% if missingMappings %}
+        <h6 class="pt-5">Unfortunatley, we could not find any mappings in our database for these identifiers:</h6>
+        <table class="table small">
+            <tr>
+                <th>Query</th>
+            </tr>
+            {% for mapping in missingMappings %}
+                <tr>
+                <td>{{mapping}}</td>
+
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    <button type="button" class="btn btn-primary btn-block search_button floatright" onClick="goToResults()">Continue with selection</button>
+
+</div>
+
+<script type="text/javascript">
+    // Hide the overlay and spinner when the page loads or is shown again (e.g., after using the back button)
+    window.addEventListener('pageshow', function() {
+        document.getElementById('overlay').style.display = 'none';
+    });
+
+    document.querySelectorAll('.search_button').forEach(function(button) {
+        button.addEventListener('click', function() {
+            // Recalculate selected genes every time the button is clicked
+            var checkedBoxes = document.querySelectorAll('input[name=geneSelector]:checked');
+            var newQueryGenes = Array.from(checkedBoxes).map(cb => cb.value).join(',');
+
+            // Check if any genes are selected
+            if (newQueryGenes !== "") {
+                // Show the overlay and spinner
+                document.getElementById('overlay').style.display = 'flex';
+            } 
+        });
+    });
+
+    // On submit, redirects to the network view, without info on missing/multi mappings, with the selected uniprotIDs as query genes
+    function goToResults() {
+        var newQueryGenes = "";
+        var checkedBoxes = document.querySelectorAll('input[name=geneSelector]:checked');
+        
+        for (var i = 0; i < checkedBoxes.length; i++) {
+            newQueryGenes += checkedBoxes[i].value + ",";
+        }
+        
+        // Remove trailing comma
+        newQueryGenes = newQueryGenes.slice(0, -1);
+    
+        // Check if no genes are selected
+        if (newQueryGenes === "") {
+            alert("Please select at least one gene.");  // Display error
+            return;  // Prevent redirection
+        }
+
+        // Redirect to the network view with the selected uniprotIDs as query genes
+        var url = "{{querystring | safe}}";
+        url = url.replace("###", newQueryGenes);
+        window.location.href = url;
+    }
+
+</script>
+
+{% include "./footer.html" %}

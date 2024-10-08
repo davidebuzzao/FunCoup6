@@ -1,0 +1,57 @@
+Complex:
+  urlIrefIndex: https://irefindex.vib.be/download/irefindex/data/archive/release_19.0/psi_mitab/MITAB2.6/All.mitab.08-22-2022.txt.zip
+  urlCorum: http://mips.helmholtz-muenchen.de/corum/download/releases/current/allComplexes.txt.zip
+  urlComplexPortal: http://ftp.ebi.ac.uk/pub/databases/intact/complex/current/complextab/
+  version: 2022-08
+  sourceUrl: https://irefindex.vib.be/wiki/index.php/README_MITAB2.6_for_iRefIndex_19.0
+
+Metabolic:
+  urlPathways: https://www.kegg.jp/kegg-bin/download_htext?htext=br08901&format=htext&filedir=
+  urlKGML: https://rest.kegg.jp/get/PATHWAYID/kgml
+  existingPathways: 01200,01210,01212,01230,01220,00010,00020,00030,00040,00051,00052,00053,00500,00520,00620,00630,00640,00650,00660,00562,00190,00195,00196,00710,00720,00680,00910,00920,00061,00062,00071,00072,00073,00100,00120,00121,00140,00561,00564,00565,00600,00590,00591,00592,00230,00240,00250,00260,00270,00280,00290,00300,00310,00220,00330,00340,00350,00360,00380,00400,00410,00430,00440,00450,00460,00471,00472,00473,00480,00510,00513,00512,00515,00514,00532,00534,00533,00531,00563,00601,00603,00604,00540,00550,00511,00571,00572,00730,00740,00750,00760,00770,00780,00785,00790,00670,00830,00860,00130,00900,00902,00909,00904,00906,00905,00981,00908,00903,00281,00522,00253,00523,00940,00945,00941,00944,00942,00943,00901,00403,00950,00960,00232,00965,00966,00402,00311,00332,00261,00331,00521,00524,00525,00401,00404,00405,00333,00254,00999,00998,00997,00362,00627,00364,00625,00361,00623,00622,00633,00642,00643,00791,00930,00363,00621,00626,00624,00365,00984,00980,00982,00983,00970,01040,01051,01052,01053,01054,01055,01056,01057,01058,02010,02060,03008,03010,03013,03015,03018,03020,03022,03030,03040,03050,03060,03070,03410,03420,03430,03440,03450,03460,04120,04122,04130,04139,04140,04141,04142,04144,04145,04146,04973,04974,04975,04977,07222
+  version: 2022-02
+  directLinks: FALSE
+  sourceUrl: https://www.kegg.jp/
+
+Operon:
+  url: https://operondb.jp/download/known_operon.download.txt
+  version: 2022-02
+  sourceUrl: https://operondb.jp/
+
+PPI:
+  url: https://irefindex.vib.be/download/irefindex/data/archive/release_19.0/psi_mitab/MITAB2.6/All.mitab.08-22-2022.txt.zip
+  version: 2022-08
+  sourceUrl: https://irefindex.vib.be/wiki/index.php/README_MITAB2.6_for_iRefIndex_19.0
+
+Regulatory:
+  version: ''
+  sourceUrl: https://regnetworkweb.org
+  RegNetwork:
+    tax_id: ['9606','10090']
+    url: https://regnetworkweb.org/download/RegulatoryDirections.zip
+    data: [new_kegg.human.reg.direction.txt, new_kegg.mouse.reg.direction.txt]
+    version: 2019-04
+  RegulonDB:
+    tax_id: ['83333']
+    url: [http://regulondb.ccg.unam.mx/menu/download/datasets/files/NetWorkTFGene.txt, http://regulondb.ccg.unam.mx/menu/download/datasets/files/NetWorkTFTF.txt]
+    data: [NetWorkTFGene.txt, NetWorkTFTF.txt]
+    version: 2022-12
+  TRRUST:
+    tax_id: ['9606','10090']
+    url: [https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv, https://www.grnpedia.org/trrust/data/trrust_rawdata.mouse.tsv]
+    data: [trrust_rawdata.human.tsv, trrust_rawdata.mouse.tsv]
+    version: 2018-04
+  Yeastract:
+    tax_id: ['559292']
+    # File was shared on 
+    url: http://pedromonteiro.org/datasets/yeastract2022-Sc-flat-file.txt.gz
+    data: yeastract2022-Sc-flat-file.txt.gz
+    version: 2022
+
+Signaling:
+  urlPathways: https://www.kegg.jp/kegg-bin/download_htext?htext=br08901&format=htext&filedir=
+  urlKGML: https://rest.kegg.jp/get/PATHWAYID/kgml
+  existingPathways: 04130,04014,04015,04010,04013,04016,04011,04012,04310,04330,04340,04341,04350,04390,04391,04392,04370,04371,04630,04064,04668,04066,04068,04020,04070,04072,04071,04024,04022,04151,04152,04150,04075,04080,04060,04061,04512,04514,04115,04510,04520,04530,04540,02024,04620,04624,04621,04622,04623,04625,04660,04657,04662,04664,04062,04910,04922,04920,03320,04912,04915,04917,04921,04926,04919,04260,04261,04270,04720,04723,04722,04744,04745,04740,04742,04626,02020,04110,04111,04112,04113,04114,04210,04610,04612,04614,04640,04650,04666,04670,04672,04721,04724,04725,04726,04727,04728,04730,04914,04916
+  version: 2022-02
+  directLinks: FALSE
+  sourceUrl: https://www.kegg.jp/

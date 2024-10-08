@@ -1,0 +1,83 @@
+{% include "./header.html" %}
+{% load static %}
+
+<!-- This page contains downloadable networks for all species, and instructions on how to interpret the files -->
+<div class="container ">
+  <h4 class="pb-3 pt-5">Download FunCoup networks in full format</h4>
+  {% for file in filesFull %}
+    <div class="row w-50 ">
+      <div class="col">
+        <a rel="nofollow" href="{{file.url}}">{{file.name}}</a>
+      </div>
+      <div class="col">
+        {{file.size}}
+      </div>
+    </div>
+  {% endfor %}
+
+  <h6 class="pb-3 pt-5">Download a transferred network</h6>
+  <div class="autocomplete col-md-4"> 
+
+    <input class="form-control"  id="fullTransferred" type="text" name="myCountry" placeholder="Search for a species">
+  </div>
+
+  <div class="pt-5">
+    <p>The full format is a tab-separated value (TSV) format with the following columns:</p>
+    <table class="table">
+      <tr><th>Column</th><th>Label</th><th>Description</th></tr>
+      <tr><td>0-1</td><td>Protein*</td><td>UniProt identifiers of the proteins in the pair</td></tr>
+      <tr><td>2-3</td><td>FunCoup*id</td><td>The internal FunCoup identifiers for the proteins</td></tr>
+      <tr><td>4</td><td>GoldStandard</td><td>The gold standard network with the maximum confidence for the link</td></tr>
+      <tr><td>5</td><td>PPV</td><td>The PPV confidence score of the link</td></tr>
+      <tr><td>6</td><td>FBS_max</td><td>The maximum Final Bayesian Score </td></tr>
+      <tr><td>7</td><td>isGoldStandard</td><td>Denotes links that are in the gold standards with 1 and links that do not appear in the gold standards with 0</td></tr>
+      <tr><td>8</td><td>isPPVgoldstandard</td><td>Denotes links that have a gold standard-based PPV with 1 and links that have an evidence-based PPV with 0</td></tr>
+      <tr><td>9</td><td>GRG_direction</td><td>The direction of the link from the GRG evidence</td></tr>
+      <tr><td>10-15</td><td>FBS_*</td><td>The FBS scores of the different coupling classes (Some species don't have all classes)</td></tr>
+      <tr><td>16-24</td><td>LLR_*</td><td>The log-likelihood ratios (LLRs) of the different evidence types</td></tr>
+      <tr ><td>25-46</td><td>LLR_*</td><td>The LLRs of the evidence from the different species</td></tr>
+    </table>
+  </div>
+
+  <h4 class="pb-3 pt-5">Download FunCoup networks in compact format</h4>
+  {% for file in filesCompact %}
+    <div class="row w-50 ">
+      <div class="col">
+        <a rel="nofollow" href="{{file.url}}">{{file.name}}</a>
+      </div>
+      <div class="col">
+        {{file.size}}
+      </div>
+    </div>
+  {% endfor %}
+
+  <h6 class="pb-3 pt-5">Download a transferred network</h6>
+  <div class="autocomplete  col-md-4" >
+    <input class="form-control"  id="compactTransferred" type="text" name="myCountry" placeholder="Search for a species">
+  </div>
+
+  <div class="pt-5">
+    <p>The full format is a tab-separated value (TSV) format with the following columns:</p>
+    <table class="table">
+      <tr><th>Columns</th><th>Label</th><th>Description</th></tr>
+      <tr><td>0-1</td><td>Protein*</td><td>UniProt identifiers of the proteins in the pair</td></tr>
+      <tr><td>2-3</td><td>FunCoup*id</td><td>The internal FunCoup identifiers for the proteins</td></tr>
+      <tr><td>4</td><td>GoldStandard</td><td>The gold standard network with the maximum confidence for the link</td></tr>
+      <tr><td>5</td><td>PPV</td><td>The PPV confidence score of the link</td></tr>
+      <tr><td>6</td><td>FBS_max</td><td>The maximum Final Bayesian Score </td></tr>
+      <tr><td>7</td><td>isGoldStandard</td><td>Denotes links that are in the gold standards with 1 and links that do not appear in the gold standards with 0</td></tr>
+      <tr><td>8</td><td>isPPVgoldstandard</td><td>Denotes links that have a gold standard-based PPV with 1 and links that have an evidence-based PPV with 0</td></tr>
+      <tr><td>9</td><td>GRG_direction</td><td>The direction of the link from the GRG evidence</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+   $(document).ready(function() {
+    autocomplete(document.getElementById("fullTransferred"), {{fileListFullTransferred |safe}}, 'url');
+    autocomplete(document.getElementById("compactTransferred"), {{fileListCompactTransferred |safe}}, 'url');
+   });
+
+</script>
+
+{% include "./footer.html" %}
