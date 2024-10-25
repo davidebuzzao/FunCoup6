@@ -1,0 +1,1306 @@
+{% include "./header.html" %}
+{% load static %}
+
+<!-- iporting necessary d3 scripts -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
+
+<div class="height95vh w-100 ">
+  {% if parameters.error == "" %}  <!-- If there is an error from modify search, dont show network -->
+
+    <!-- Container for network and side panel -->
+    <div id="containerForNetworkView" class="row h-50 w-100">
+      <div class="col-3 m-3">
+        <!-- Here is the side panel -->
+        <div class="accordion InteractorAccordion" id="networkSettingsAccordion">
+
+          <!-- Basic network information -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button p-2" type="button" data-bs-toggle="collapse" data-bs-target="#networkInfo" aria-expanded="true" aria-controls="networkInfo"  onclick="handleAccordionToggle('networkInfo')">
+                Network information
+              </button>
+            </h2>
+            <div id="networkInfo" class="accordion-collapse collapse show" data-bs-parent="#networkSettingsAccordion">
+                <div class="accordion-body p-3" style="overflow: scroll; max-height: 30vh;">
+
+                {% if parameters.orthologyTransferMessage != "" %}
+                <p class="small mb-0">{{parameters.orthologyTransferMessage}}</p>
+                {% endif %}
+                <p class="small mb-0"><b>Species:</b></p>
+                <div class="row">
+                  {% for s in parameters.species %}
+                    <div class="row">
+                      <div class="col-1"><i class="bi bi-circle-fill w-25" style="color:{{s.color}}"></i></div>
+                      <div class="col"><p class="small mb-0">{{s.speciesName}}</p></div>
+                    </div>
+                  {% endfor %}
+                </div>
+                <p class="small mb-0"><b>Expansion Algorithm:</b> {{parameters.expansionAlgorithmLabel}}</p>
+                <p class="small mb-0"><b>Link/Direction min confidence:</b> {{parameters.confidenceThreshold}}/{{parameters.grgLLRThreshold}}</p>
+                <p class="small mb-0"><b>Genes/Links:</b> {{parameters.subnetworkGenes}}/{{parameters.subnetworkLinks}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Network filters for tissue and pathway -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button p-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filterNetwork" aria-expanded="false" aria-controls="filterNetwork" onclick="handleAccordionToggle('filterNetwork')">
+                Filter Network
+              </button>
+            </h2>
+            <div id="filterNetwork" class="accordion-collapse collapse" data-bs-parent="#networkSettingsAccordion">
+              <div class="accordion-body p-3">
+                {% if parameters.hasTissues != "false" %}
+                  <p class="small mb-0">Filter by Tissue: </p>
+                  <div id="tissueFilterBadge"></div>
+                  <div class="autocomplete" >
+                    <input class="form-control"  id="filterTissue" type="text" name="filterTissue" placeholder="Find a tissue...">
+                  </div>
+                {% endif %}
+                {% if parameters.hasPathways != "false" %}
+                  <p class="small mb-0">Filter by Pathway: </p>
+                  <div id="pathwayFilterBadge"></div>
+                  <div class="autocomplete" >
+                    <input class="form-control"  id="filterPathway" type="text" name="filterPathway" placeholder="Find a pathway...">
+                  </div>
+                {% endif %}
+            </div>
+            </div>
+          </div>
+
+          <!-- Components for adjusting network appearance -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button p-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#networkAppearance" aria-expanded="false" aria-controls="networkAppearance" onclick="handleAccordionToggle('networkAppearance')">
+                Network appearance
+              </button>
+            </h2>
+            <div id="networkAppearance" class="accordion-collapse collapse" data-bs-parent="#networkSettingsAccordion">
+              <div class="accordion-body p-3 pt-1 pb-1">
+
+                <div class="accordion InteractorAccordion" id="networkAppearanceAccordion">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header">
+                      <button class="accordion-button p-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#nodeAppearance" aria-expanded="false" aria-controls="nodeAppearance">
+                        Nodes
+                      </button>
+                    </h2>
+                    <div id="nodeAppearance" class="accordion-collapse collapse" data-bs-parent="#networkAppearanceAccordion">
+                      <div class="accordion-body p-3 pt-1 pb-1">
+                        <p class="small mb-0">Color All: <input type="color" class="colorPicker" id="globalNodeColor" name="colorPicker" value="#4584b5" onChange="changeGlobalNodeColor()"/></p>
+                        <!-- <p class="small mb-0">Color by pathway under the "Interactors" tab</p> -->
+                        {% if parameters.hasTissues != "false" %}
+                          <p class="small mb-0">Color by Tissue: </p>
+                          <div id="tissueColorBadge"></div>
+                          <div class="autocomplete" >
+                            <input class="form-control"  id="colorTissue" type="text" name="colorTissue" placeholder="Find a tissue...">
+                          </div>
+                        {% endif %}
+                        {% if parameters.hasPathways != "false" %}
+                          <p class="small mb-0">Color by Pathway: </p>
+                          <div id="pathwayColorBadge"></div>
+                          <div class="autocomplete" >
+                            <input class="form-control"  id="colorPathway" type="text" name="colorPathway" placeholder="Find a pathway...">
+                          </div>
+                        {% endif %}
+                        <p class="small mb-0">Size:</p>
+                        <select class="form-select form-select-sm" name="nodeSize" id="viewer_nodeSize">
+                          <option value="linkdegree" selected="selected">Degree</option>
+                          <option value="none">None</option>
+                        </select>
+                        <p class="small mb-0">Label Color: <input type="color" class="colorPicker" id="globalTextColor" name="colorPicker" value="#333333" onChange="changeGlobalTextColor()"/></p>
+                        <p class="small mb-0">Label Type:</p>
+                        <select class="form-select form-select-sm" name="nodeName" id="viewer_nodeName">
+                          <optgroup label="Gene Identifiers" id="viewer_nodeName_geneID">
+                            <option value="default" selected="selected">Query ID</option>
+                              {% for o in parameters.mappingTypes %}
+                                <option value='{{o}}'>{{o}}</option>
+                              {% endfor %}
+                          </optgroup>
+                          <optgroup label="Other">
+                            <option value="degree">Link degree</option>
+                            <option value="species">Species</option>
+                            <option value="none">None</option>
+                          </optgroup>
+                        </select>
+                      </div>
+                      </div>
+                    </div>
+                    
+                  <div class="accordion-item">
+                      <h2 class="accordion-header">
+                        <button class="accordion-button p-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#linkAppearance" aria-expanded="false" aria-controls="linkAppearance">
+                          Links
+                        </button>
+                      </h2>
+                    <div id="linkAppearance" class="accordion-collapse collapse" data-bs-parent="#networkAppearanceAccordion">
+                      <div class="accordion-body p-3 pt-1 pb-1">
+                        {% if parameters.hasDirections == True %}
+                        <input type="checkbox" style="margin-left: 3px;" id="showDirections" value="true" checked>
+                        <label class="small mb-0">Show directions <i class="bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" data-bs-title="Select to show directions of links inferred from transcriptionfactor-gene bindings."></i></label>       
+                        {% endif %}
+                        <p class="small mb-0">Color: <input type="color" class="colorPicker" id="globalEdgeColor" name="colorPicker" value="#7f7f7f" onChange="changeGlobalEdgeColor()"/></p>
+                        <p class="small mb-0">Width:</p>
+                        <select class="form-select form-select-sm" name="linkWidth" id="viewer_linkWidth">
+                          <option value="none" selected="selected">None</option>
+                          <!-- <option value="ppv" selected="selected">Confidence</option> -->
+                          <option value="ppv">Confidence</option>
+                          <option value="goldstandard">Nr. supporting networks</option>
+                          <!-- <option value="none">None</option> -->
+                        </select>
+      
+                        <p class="small mb-0">Charge:</p>
+                        <input type="range" class="form-range form-range-wide" name="nodeCharge"  type="range" id="viewer_nodeCharge" min="-900" max="100" value="-700" step="10">
+                        <p class="small mb-0">Distance:</p>
+                        <input type="range" class="form-range form-range-wide" name="linkDistance" type="range" id="viewer_linkDistance" min="0" max="400" value="200" step="10">
+                      </div>
+                      </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+          </div>
+
+          <!-- Download buttons -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button p-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#networkDownload" aria-expanded="false" aria-controls="networkDownload"  onclick="handleAccordionToggle('networkDownload')">
+                Download
+              </button>
+            </h2>
+            <div id="networkDownload" class="accordion-collapse collapse" data-bs-parent="#networkSettingsAccordion">
+              <div class="accordion-body p-3">
+                <button class="btn btn-secondary btn-sm mb-2" id="saveButton">Network as .png</button>
+                <button class="btn btn-secondary btn-sm mb-2" id="saveTsvButton">Network as .tsv</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <!-- The actual network display -->
+    <div class="col h-100" id="network_display">
+      <button type="button" id="fullscreenButton" class="btn btn-outline-dark btn-sm fullscreenButton" onClick="changeViewSize('fullscreenButton','')" ><i class="bi bi-arrows-fullscreen"></i></button>
+      
+      <!-- The entire network is inserted into this svg from javascript below -->
+      <svg id="networkSVG" class="viewerNetwork"></svg>
+
+      <!-- Detailed link information is shown in this collapse -->
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header" id="detailsPanelHeader">
+        </div>
+        <div class="offcanvas-body m-3" id="detailsPanel">
+        </div>
+      </div>
+
+
+    </div>  
+  </div>
+  <div class="row h-50 w-100">
+{% else %} 
+  <!-- if error, show modify search in full window -->
+  <div class="row h-90 w-100">
+{% endif %}
+  
+  <!-- All tabs below the network are controlled from here -->
+  <ul class="nav nav-tabs justify-content-center" id="networkTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      {% if parameters.error == "" %}  <!-- If there is not search form error -->
+        <button class="nav-link nav-link_network p-2 active" id="interactions-tab" data-bs-toggle="tab" data-bs-target="#interactions-tab-pane" type="button" role="tab" aria-controls="interactions-tab-pane" aria-selected="true">Interactions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link nav-link_network p-2" id="interactors-tab" data-bs-toggle="tab" data-bs-target="#interactors-tab-pane" type="button" role="tab" aria-controls="interactors-tab-pane" aria-selected="false">Interactors</button>
+        </li>
+        <li class="nav-item" role="presentation">
+        {% if parameters.orthologyTransferMessage == "" %}
+          <button class="nav-link nav-link_network p-2" id="enrichment-tab" onClick="collectEnrichments()" data-bs-toggle="tab" data-bs-target="#enrichment-tab-pane" type="button" role="tab" aria-controls="enrichment-tab-pane" aria-selected="false">Enrichment</button>
+        {% endif %}
+      </li>
+        <li class="nav-item" role="presentation">
+      {% endif %}
+      {% if parameters.error == "" %} <!-- If there is not search form error -->
+        <button class="nav-link nav-link_network p-2" id="search-tab" data-bs-toggle="tab" data-bs-target="#search-tab-pane" type="button" role="tab" aria-controls="search-tab-pane" aria-selected="false">Modify Search</button>
+      {% else %}
+       <button class="nav-link nav-link_network p-2 active" id="search-tab" data-bs-toggle="tab" data-bs-target="#search-tab-pane" type="button" role="tab" aria-controls="search-tab-pane" aria-selected="false">Modify Search</button>
+      {% endif %}
+    </li>
+  </ul>
+  <div class="tab-content networkTabsContent overflow-auto" id="networkTabsContent">
+    {% if parameters.error == "" %} <!-- If there is not search form error -->
+      <div class="tab-pane fade show active p-2" id="interactions-tab-pane" role="tabpanel" aria-labelledby="interactions-tab" tabindex="0">
+    {% else %}
+      <div class="tab-pane fade  p-2" id="interactions-tab-pane" role="tabpanel" aria-labelledby="interactions-tab" tabindex="0">
+    {% endif %}
+    <!-- Including interactions.html -->
+    {% include "./interactions.html" %}
+    </div>
+    <div class="tab-pane fade  p-2 " id="interactors-tab-pane" role="tabpanel" aria-labelledby="interactors-tab" tabindex="0">
+      <!-- Including interactors.html -->
+      {% include "./interactors.html" %}
+    </div>
+    <div class="tab-pane fade  p-2" id="enrichment-tab-pane" role="tabpanel" aria-labelledby="enrichment-tab" tabindex="0">
+      <!-- Including enrichment.html -->
+      {% include "./enrichment.html" %}
+    </div>
+    {% if parameters.error == "" %} <!-- If there is not search form error -->
+      <div class="tab-pane fade  p-5 " id="search-tab-pane" role="tabpanel" aria-labelledby="search-tab" tabindex="0">
+    {% else %}
+      <div class="tab-pane fade show active p-5 " id="search-tab-pane" role="tabpanel" aria-labelledby="search-tab" tabindex="0">
+    {% endif %}
+    <div class="networkTabContainer_search pt-4 pb-4">
+      <!-- Including search.html -->
+      {% include "./search.html" %}
+    </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  // Defining some global variables to keep track of the sate of selected filters and changed node colors.
+  var pathwayFilter=[];
+  var tissueFilter=[];
+  var nodeColors={}
+  var pathwayColor_dict={}
+  var tissueColor_dict={}
+  var pathwayColor_badges=[]
+  var tissueColor_badges=[]
+  var startedCollectingEnrichment='False'
+  // Define an array to keep track of selected pathways
+  var selectedFilterPathways = [];
+  var selectedColorPathways = [];
+  var selectedFilterTissues = [];
+  var selectedColorTissues = [];
+  // Define default colors
+  var defaultNodeColor = "#4584b5"
+  var defaultEdgeColor = "#999"
+  var defaultTextColor = "#333333"
+
+  // Activating tooltips on the network page
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+  
+  // Setting up data in the autocompletes for tissue and pathway filters
+  var pathwayLookup={{parameters.allNetworkPathways |safe}}
+  var tissueLookup={{parameters.allNetworkTissues |safe}}
+  var allFilterPathwayName = $.map(pathwayLookup, function(value, key) { return value })
+  var allColorPathwayName = $.map(pathwayLookup, function(value, key) { return value })
+  var allFilterTissueName = $.map(tissueLookup, function(value, key) { return value })
+  var allColorTissueName = $.map(tissueLookup, function(value, key) { return value })
+  var allPatwhayIDs = $.map(pathwayLookup, function(value, key) { return key })
+  var allTissueIDs = $.map(tissueLookup, function(value, key) { return key })
+
+  if ('{{parameters.hasPathways}}' != "false"){
+    allFilterPathwayName.sort();
+    autocomplete(document.getElementById("filterPathway"), allFilterPathwayName, 'filterPathway','pathwayFilterBadge','filterPathway');
+  }
+  if ('{{parameters.hasTissues}}' != "false"){
+    allFilterTissueName.sort();
+    autocomplete(document.getElementById("filterTissue"), allFilterTissueName, 'filterTissue','tissueFilterBadge','filterTissue');
+  }
+  if ('{{parameters.hasPathways}}' != "false"){
+    allColorPathwayName.sort();
+    autocomplete(document.getElementById("colorPathway"), allColorPathwayName, 'colorPathway','pathwayColorBadge','colorPathway');
+  }
+  if ('{{parameters.hasTissues}}' != "false"){
+    allColorTissueName.sort();
+    autocomplete(document.getElementById("colorTissue"), allColorTissueName, 'colorTissue','tissueColorBadge','colorTissue');
+  }
+  
+
+  // Setting up event handlers for network controls in the side panel
+  $('#viewer_nodeName').change( function() { setNodeLabel($(this).val());});
+  $('#viewer_nodeCharge').change( function() { setNodeCharge($(this).val());});
+  $('#viewer_linkDistance').change( function() { setLinkDistance($(this).val());} );
+  $('#viewer_nodeSize').change( function() { setNodeSize($(this).val());});
+  $('#viewer_linkWidth').change( function() { setLinkWidth($(this).val());});
+  $('#showDirections').on('click', function() {
+    if (document.getElementById('showDirections').checked){directionsSelected(true);}
+    else{directionsSelected(false);}
+  });
+  $('#saveButton').on('click', function(){
+    var svgString = getSVGString($('#networkSVG'));
+    svgString2Image( svgString, document.querySelector("svg").getAttribute("width")*5, document.querySelector("svg").getAttribute("height")*5, 'png', save ); // passes Blob and filesize String to the callback
+    function save( dataBlob, filesize ){saveAs( dataBlob, 'FunCoup_subnetwork.png' );}
+  });
+  $('#saveTsvButton').on('click', function(){exportTsv();});
+
+  // Constructing the network, and all functions for the network viewer here
+  if(document.getElementById('network_display')){
+
+    var networkViewSize="small"
+
+    // Getting the size of the network view
+    const width = document.getElementById('network_display').clientWidth;
+    const height = document.getElementById('network_display').clientHeight;
+
+    // Get the data for links and nodes from the python object passed as data
+    var links = Object.values({{data |safe}}.links).map(d => ({...d}));
+    var nodes = Object.values({{data |safe}}.nodes).map(d => ({...d}));
+    var defaultNodeSize = 24
+    // var maxNodeSize = 24
+
+    // Filling the nodeColors dict with initial color info
+    for (var i = 0; i < nodes.length; i++) {
+      nodeColors[nodes[i].id]=nodes[i].species.color
+    }
+
+    for (var i = 0; i < allPatwhayIDs.length; i++) {
+      pathwayColor_dict[allPatwhayIDs[i]]=defaultNodeColor
+    }
+
+    for (var i = 0; i < allTissueIDs.length; i++) {
+      tissueColor_dict[allTissueIDs[i]]=defaultNodeColor
+    }
+
+    // Create a simulation with several forces.
+    var simulation = d3.forceSimulation(nodes)
+        .force("link", d3.forceLink(links).id(d => d.id).distance( $('#viewer_linkDistance').val()))
+        .force("charge", d3.forceManyBody().strength($('#viewer_nodeCharge').val()))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(function(d) {return d.degree+40}).iterations(20)) // Making sure nodes dont crash into each other
+        .on("tick", ticked);
+
+    // Assign the SVG container with new properites.
+    const svg = d3.select("#networkSVG")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [0, 0, width, height])
+        .attr("style", "max-width: 100%; ")
+        .call(d3.zoom().scaleExtent([0.1, 10]).on("zoom",  zoomed)) // max and min zoom is controlled here
+        .append("g")
+
+    // Add a line for each link to the svg
+    var link = svg.append("g")
+      .attr("stroke-opacity", 0.6)
+      .selectAll("line")
+      .data(links)
+      .attr("target", d => d.target)
+      .attr("source", d => d.source)
+      .join("line")
+      // To set if you want weighted network as default
+      // .attr("stroke-width", d => (d.value ==="orthoLink") ? 3.0 : 5*d.scoresPerGoldStandard[0].ppv)
+      // To set if you want unweighted network as default
+      .attr("stroke-width", 3.0)
+      .attr("stroke-dasharray", d => (d.value ==="orthoLink") ? "7,7" : "0,0")
+      .attr("stroke", d => (d.value ==="orthoLink") ? "#4CAF50" : "#999")
+      .on('mouseover', mouseOverLink)
+      .on('mouseout', mouseOutLink);
+      // .on('click', clickLink);
+
+    // Add a circle for each node in the data to the svg
+    var node = svg.append("g")
+      .selectAll("circle")
+      .data(nodes)
+      .join("circle")
+      .attr("stroke", d=>d.nodeBorder)
+      .attr("stroke-width", d=>d.nodeBorderWidth)
+      .attr("r", d =>d.degree+20)
+      .attr("fill", d => d.species.color)
+      .attr("id", d => d.id)
+      .attr("uniprotID", d => d.uniprotID)
+      .attr("degree", d => d.degree)
+      .on('mouseover', mouseOver)
+      .on('mouseout', mouseOut)
+      .on('click', clickNode);
+
+    // Add a text as a label to all nodes to the svg
+    var texts = svg.selectAll(".texts")
+        .data(nodes)
+        .enter()
+        .append("text")
+        .attr("dx", d =>-((d.uniprotID.length*11)/2))
+        .attr("dy", d => -(d.degree+25))
+        .text(function(d){ return d.uniprotID; })
+        // .style('fill',d => d.species.color)
+        .style('fill', d => defaultTextColor)
+        .style('font-size', '20px')
+        .style('font-weight', 'bold')
+        .style('font-family','helvetica');
+
+    // Add an arrowhead object (a to b) for each link having a direction to the svg
+    for (var l in links){
+      if (links[l].direction=='3' || links[l].direction=='5'){
+        var defs = svg.append('defs').append('marker')
+          .attrs({'id':l+'arrowhead_1',
+              'viewBox':'-0 -5 10 10',
+              'refX':20,
+              'refY':0,
+              'orient':'auto',
+              'markerWidth':5,
+              'markerHeight':5,
+              'xoverflow':'visible'})
+          .join("marker")
+          .append('svg:path')
+          // .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+          .attr('d', 'M 0,-4.5 L 10.5,0 L 0,4.5')
+          .attr('fill', '#616161')
+          .style('stroke','none');
+      }   
+    }
+
+    // Add an arrowhead object (b to a) for each link having a direction to the svg
+    for (var l in links){
+      if (links[l].direction=='2' || links[l].direction=='5'){
+        var defs = svg.append('defs').append('marker')
+            .attrs({'id':l+'arrowhead_2',
+            'viewBox':'-0 -5 10 10',
+            'refX':20,
+            'refY':0,
+            'orient':'auto-start-reverse',
+            'markerWidth':5,
+            'markerHeight':5,
+            'xoverflow':'visible'})
+        .append('svg:path')
+        // .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+        .attr('d', 'M 0,-4.5 L 10.5,0 L 0,4.5')
+        .attr('fill', '#616161')
+        .style('stroke','none');
+      }
+    }
+
+    // Appending arrowheads to links with directions
+    link.layout = { lineClass: function(d) {},
+      arrow_1: function(d) {
+        if(parseInt(d.direction)==3 || parseInt(d.direction)==5){
+          var nodeSize = getNodeSize(d.target)
+          var linkWidth = getLinkWidth(d)
+          // var nodeBorderWidth = d.target.nodeBorderWidth
+          if (linkWidth>4){
+            // 50 --> probably here the max degree/nodesize in the network
+            var multiplier = nodeSize/40
+            // var multiplier = 1.5
+            var nodeSizeSupplement = multiplier*(nodeSize/3)
+            $('#'+d.index+'arrowhead_1')[0].refX.baseVal.value=nodeSize-nodeSizeSupplement
+          } else {
+            $('#'+d.index+'arrowhead_1')[0].refX.baseVal.value=nodeSize
+          }
+
+          return 'url(#'+d.index+'arrowhead_1)'
+        }else{
+          return '';
+        }
+      },
+      arrow_2: function(d) {
+        if(parseInt(d.direction)==2 || parseInt(d.direction)==5){
+          var nodeSize = getNodeSize(d.source)
+          var linkWidth = getLinkWidth(d)
+          // var nodeBorderWidth = d.source.nodeBorderWidth
+          if (linkWidth>4){
+            // 50 --> probably here the max degree/nodesize in the network
+            var multiplier = nodeSize/40
+            var nodeSizeSupplement = multiplier*(nodeSize/3)
+            $('#'+d.index+'arrowhead_2')[0].refX.baseVal.value=nodeSize-nodeSizeSupplement
+          } else {
+            $('#'+d.index+'arrowhead_2')[0].refX.baseVal.value=nodeSize
+          }
+          return 'url(#'+d.index+'arrowhead_2)'
+        }else{
+          return '';
+        }
+      },
+      opacity : function(d) {return 0.6}
+    };
+
+    // Now that directions are in place, initiate directionsSelected to true
+    directionsSelected(true)
+
+    // Add a drag behavior.
+    node.call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+
+    // Function for zooming in the network
+    function zoomed(event,d) {
+        d3.select('svg g').attr("transform", event.transform)
+    }
+
+    // Set the position attributes of links and nodes each time the simulation ticks.
+    function ticked() {
+      link.attr("x1", d => d.source.x)
+          .attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x)
+          .attr("y2", d => d.target.y);
+      node.attr("cx", d => d.x)
+          .attr("cy", d => d.y);
+      texts.attr("x", function(d) { return d.x; })
+          .attr("y", function(d) { return d.y; });
+    }
+
+    // Reheat the simulation when drag starts, and fix the subject position.
+    function dragstarted(event) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      event.subject.fx = event.subject.x;
+      event.subject.fy = event.subject.y;
+    }
+  
+    // Update the subject (dragged node) position during drag.
+    function dragged(event) {
+      event.subject.fx = event.x;
+      event.subject.fy = event.y;
+    }
+
+    // Restore the target alpha so the simulation cools after dragging ends.
+    // Unfix the subject position now that it’s no longer being dragged.
+    function dragended(event) {
+      simulation.stop();
+    }
+
+    // Alters the charge in the network, triggered from the network appearance control "node charge"
+    function setNodeCharge(value) {
+      simulation.force("charge", d3.forceManyBody().strength(value))
+      simulation.alpha(1).restart();
+    };
+
+    // Alters the link distance in the network, triggered from the network appearance control "link distance"
+    function setLinkDistance(value) {
+      simulation.force("link", d3.forceLink(links).distance(value))
+      simulation.alpha(1).restart();
+    };
+
+    // Alters the node size based on selected value in the network appearance control "node size"
+    function setNodeSize(value){
+      if(value == 'linkdegree'){
+        node.attr("r", d =>d.degree+20)
+      }
+      if(value == 'none'){
+        node.attr("r", 22)
+      }
+      if (document.getElementById('showDirections').checked){directionsSelected(true);}
+      else{directionsSelected(false);}
+      simulation.alpha(1).restart();
+    };
+
+    // Alters the link width based on selected value in the network appearance control "Link width"
+    function setLinkWidth(value){
+      console.log(value)
+      if(value == 'ppv'){
+        link.attr("stroke-width", d => (d.value ==="orthoLink") ? 3.0 : 5*d.scoresPerGoldStandard[0].ppv)
+      }else if(value == 'goldstandard'){
+        link.attr("stroke-width", function(d){ 
+          if(d.value ==="orthoLink"){
+            return 3.0
+          }else{
+            var numSupportingNetworks=0
+            for (var i = 0; i < d.scoresPerGoldStandard.length; i++) {
+              if(d.scoresPerGoldStandard[i].ppv>0.4){ // as we are using 0.4 as a network cutoff
+                numSupportingNetworks+=1
+              }
+            }
+            return 8*(numSupportingNetworks/6);
+          }
+        });
+      }else if(value == 'none'){
+        link.attr("stroke-width", 3.0)
+      }
+      if (document.getElementById('showDirections').checked){directionsSelected(true);}
+      else{directionsSelected(false);}
+      simulation.alpha(1).restart();
+    }
+
+    // Function to control the showing or arrows for directions in the network. Controlled by checkbox "Show directions"
+    function directionsSelected(selection){
+      // // Update max node size
+      // var viewer_nodeSize_selected=$('#viewer_nodeSize').val()
+      // if(viewer_nodeSize_selected == 'linkdegree'){
+      //   for (var i = 0; i < nodes.length; i++) {
+      //     updateMaxNodeSize(nodes[i])
+      //   }
+      // } else if(viewer_nodeSize_selected == 'none'){
+      //   maxNodeSize = defaultNodeSize
+      // }
+      if(selection!=undefined && selection===true){
+        link.attr("class", link.layout.lineClass).attr("marker-end", link.layout.arrow_1).attr("marker-start", link.layout.arrow_2)
+      }else{
+        link.attr("class", link.layout.lineClass).attr("marker-end", '').attr("marker-start", '')
+      }
+    }
+
+    // function updateMaxNodeSize(d){
+    //   var nodeSize = d.degree
+    //   var multiplier = 1.5
+    //   var nodeSizeSupplement = multiplier*(nodeSize/2)
+    //   var newNodeSize = nodeSize + nodeSizeSupplement
+    //   if (newNodeSize>maxNodeSize){
+    //     maxNodeSize = newNodeSize
+    //   }
+    // }
+
+    // Getting the size of the nodes to know where to put arrowheads
+    function getNodeSize(d){
+      var selected=$('#viewer_nodeSize').val()
+      if(selected == 'linkdegree'){
+        var nodeSize = d.degree
+        var multiplier = 1.5
+        var nodeSizeSupplement = multiplier*(nodeSize/2)
+        var newNodeSize = nodeSize + nodeSizeSupplement
+        return newNodeSize
+      }else if(selected == 'none'){
+        return defaultNodeSize
+      }
+    };
+
+    // Getting the size of the nodes to know where to put arrowheads
+    function getNodeSize(d){
+      var selected=$('#viewer_nodeSize').val()
+      if(selected == 'linkdegree'){
+        var nodeSize = d.degree
+        // var multiplier = Math.max(nodeSize/15,1.5)
+        var multiplier = 1.5
+        var nodeSizeSupplement = multiplier*(nodeSize/2)
+        // console.log(nodeSize,multiplier,nodeSizeSupplement)
+        // return Math.max(24,nodeSize+nodeSizeSupplement)
+        return defaultNodeSize + nodeSizeSupplement
+
+      }else if(selected == 'none'){
+        return defaultNodeSize
+      }
+
+    };
+
+    // Getting the width of the link to know where to put arrowheads
+    function getLinkWidth(d){
+      var selected=$('#viewer_linkWidth').val()
+      if(selected == 'ppv'){
+        return (d.value ==="orthoLink") ? 3.0 : 5*d.scoresPerGoldStandard[0].ppv
+      }else if(selected == 'goldstandard'){
+          if(d.value ==="orthoLink"){
+            return 3.0
+          }else{
+            var numSupportingNetworks=0
+            for (var i = 0; i < d.scoresPerGoldStandard.length; i++) {
+              if(d.scoresPerGoldStandard[i].ppv>0.4){ // as we are using 0.4 as a network cutoff
+                numSupportingNetworks+=1
+              }
+            }
+            return 12*(numSupportingNetworks/6);
+          }
+      }else if(selected == 'none'){
+        return 3.0
+      }
+    };
+
+    // Setting the node labels based on dropdown for "label type"
+    function setNodeLabel(value) {
+      if(value == 'default'){
+        texts.text(function(d){ return d.uniprotID; });
+      }else if(value == 'none'){
+        texts.text(function(d){ return '' });
+      }else if(value == 'degree'){
+        texts.text(function(d){ return d.degree; });
+      }else if(value == 'species'){
+        texts.text(function(d){ return d.species.speciesName; });
+      }else{
+        value=value.replace(/ /g,"_");
+        texts.text(function(d){ return d.mappings[value]; });
+      }
+    }
+
+    // Setting the color of a given node id to the given color
+    function setNodeColor(nodeId, color){
+      nodeColors[nodeId]=color
+      $("#nodeColor_"+nodeId).val(color);
+      node.attr("fill",d => nodeColors[d.id])
+      // texts.style("fill", d => nodeColors[d.id])
+    }
+
+    // Setting the color of all the nodes having a given pathway id to a given color
+    function setNodeColorByAttribute(attributeID, color, attribute){
+      if (attribute=='PATHWAYCOLOR'){
+        for (var i = 0; i < nodes.length; i++) {
+          if (nodes[i].pathwayIds.includes(attributeID)){
+            nodeColors[nodes[i].id]=color
+            $("#nodeColor_"+nodes[i].id).val(color);
+          }
+        }
+      }else if (attribute=='TISSUECOLOR'){
+        var attributeID = Number(attributeID)
+        for (var i = 0; i < nodes.length; i++) {
+          if (nodes[i].tissues.includes(attributeID)){
+            nodeColors[nodes[i].id]=color
+            $("#nodeColor_"+nodes[i].id).val(color);
+          }
+        }
+      }
+
+      node.attr("fill",d => nodeColors[d.id])
+      // texts.style("fill", d => nodeColors[d.id])
+    }
+
+    // Function to export a tsv file for the subnetwork visible in the network view (including any filters applied)
+    function exportTsv(value) {
+      var self = this;
+      var fields = ["#ProteinA", "ProteinB", "GoldStandard", "PPV", "FBS_max", "isGoldStandard", "GRG_direction", "TaxIdA", "TaxIdB", "OrthoLink"];
+      
+      if (tissueFilter.length > 0 || pathwayFilter.length > 0) {
+          fields.push("Filtered_Tissue_ProteinA", "Filtered_Tissue_ProteinB", "Filtered_Pathway_ProteinA", "Filtered_Pathway_ProteinB");
+      }
+
+      var data = []; // Array to store rows
+
+      for (var m in links) {
+          var taxA = links[m].source.species['taxId'];
+          var taxB = links[m].target.species['taxId'];
+          var proteinA = links[m].source.mappings.UniProtID;
+          var proteinB = links[m].target.mappings.UniProtID;
+          var orthoLink = "0";
+          var goldstandard, ppv, fbs, isGoldStandard, direction;
+
+          if (links[m].value === "orthoLink") {
+              goldstandard = "-";
+              ppv = "-";
+              fbs = "-";
+              isGoldStandard = "-";
+              direction = "-";
+              orthoLink = "1";
+          } else {
+              goldstandard = links[m].scoresPerGoldStandard[0].type;
+              ppv = links[m].scoresPerGoldStandard[0].ppv;
+              fbs = links[m].scoresPerGoldStandard[0].fbs;
+              isGoldStandard = links[m].scoresPerGoldStandard[0].known === "None" ? "0" : "1";
+              direction = links[m].direction;
+              direction = direction === 2 ? "<-" : direction === 3 ? "->" : direction === 5 ? "<>" : "--";
+          }
+
+          var row = {
+              "#ProteinA": proteinA,
+              "ProteinB": proteinB,
+              "GoldStandard": goldstandard,
+              "PPV": ppv,
+              "FBS_max": fbs,
+              "isGoldStandard": isGoldStandard,
+              "GRG_direction": direction,
+              "TaxIdA": taxA,
+              "TaxIdB": taxB,
+              "OrthoLink": orthoLink
+          };
+
+          if (tissueFilter.length > 0 || pathwayFilter.length > 0) {
+              let pathwayIntersectionSource = links[m].source.pathwayIds.filter(x => pathwayFilter.includes(x));
+              let pathwayIntersectionTarget = links[m].target.pathwayIds.filter(x => pathwayFilter.includes(x));
+              let tissueIntersectionSource = links[m].source.tissues.filter(x => tissueFilter.includes(x));
+              let tissueIntersectionTarget = links[m].target.tissues.filter(x => tissueFilter.includes(x));
+
+              if (pathwayIntersectionSource.length > 0 || pathwayIntersectionTarget.length > 0 || tissueIntersectionSource.length > 0 || tissueIntersectionTarget.length > 0) {
+                  row["Filtered_Tissue_ProteinA"] = tissueIntersectionSource.map(p => tissueLookup[p]).join(",");
+                  row["Filtered_Tissue_ProteinB"] = tissueIntersectionTarget.map(p => tissueLookup[p]).join(",");
+                  row["Filtered_Pathway_ProteinA"] = pathwayIntersectionSource.map(p => pathwayLookup[p]).join(",");
+                  row["Filtered_Pathway_ProteinB"] = pathwayIntersectionTarget.map(p => pathwayLookup[p]).join(",");
+              }
+          }
+
+          data.push(row); // Add the row to the data array
+      }
+
+      // Sort the data array by multiple fields: PPV, TaxIdA, TaxIdB, OrthoLink
+      data.sort(function(a, b) {
+          // Compare by PPV
+          if (a["PPV"] > b["PPV"]) return -1;
+          if (a["PPV"] < b["PPV"]) return 1;
+          
+          // If PPV is the same, compare by FBS_max
+          if (a["FBS_max"] > b["FBS_max"]) return -1;
+          if (a["FBS_max"] < b["FBS_max"]) return 1;
+
+          // If FBS_max is the same, compare by OrthoLink
+          if (a["OrthoLink"] < b["OrthoLink"]) return -1;
+          if (a["OrthoLink"] > b["OrthoLink"]) return 1;
+
+          // If OrthoLink is the same, compare by TaxIdA
+          if (a["TaxIdA"] < b["TaxIdA"]) return -1;
+          if (a["TaxIdA"] > b["TaxIdA"]) return 1;
+
+          // If TaxIdA is the same, compare by TaxIdB
+          if (a["TaxIdB"] < b["TaxIdB"]) return -1;
+          if (a["TaxIdB"] > b["TaxIdB"]) return 1;
+
+          // If all fields are the same, return 0
+          return 0;
+      });
+
+
+      // Convert the data array to a TSV string
+      var tsv = fields.join("\t");
+      data.forEach(function(row) {
+          tsv += "\n" + fields.map(field => row[field] || "").join("\t");
+      });
+
+      // Create and download the TSV file
+      var blob = new Blob([tsv], { type: "text/tsv" });
+      var uri = URL.createObjectURL(blob);
+      var link = document.createElement("a");
+      link.download = 'FunCoup_subnetwork.tsv';
+      link.href = uri;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      delete link;
+  }
+
+
+    // Function to export the current network view to an svg STRING for download
+    function getSVGString( svgNode ) {
+      d3.select('svg').node().setAttribute('xlink', 'http://www.w3.org/1999/xlink');
+      var cssStyleText = getCSSStyles( d3.select('svg').node() );
+      appendCSS( cssStyleText, d3.select('svg').node() );
+      var serializer = new XMLSerializer();
+      var svgString = serializer.serializeToString(d3.select('svg').node());
+      svgString = svgString.replace(/(\w+)?:?xlink=/g, 'xmlns:xlink='); // Fix root xlink without namespace
+      svgString = svgString.replace(/NS\d+:href/g, 'xlink:href'); // Safari NS namespace fix
+      return svgString;
+
+      function getCSSStyles( parentElement ) {
+        var selectorTextArr = [];
+        // Add Parent element Id and Classes to the list
+        selectorTextArr.push( '#'+parentElement.id );
+        for (var c = 0; c < parentElement.classList.length; c++)
+            if ( !contains('.'+parentElement.classList[c], selectorTextArr) )
+              selectorTextArr.push( '.'+parentElement.classList[c] );
+        // Add Children element Ids and Classes to the list
+        var nodes = parentElement.getElementsByTagName("*");
+        for (var i = 0; i < nodes.length; i++) {
+          var id = nodes[i].id;
+          if ( !contains('#'+id, selectorTextArr) )
+            selectorTextArr.push( '#'+id );
+          var classes = nodes[i].classList;
+          for (var c = 0; c < classes.length; c++)
+            if ( !contains('.'+classes[c], selectorTextArr) )
+              selectorTextArr.push( '.'+classes[c] );
+        }
+        // Extract CSS Rules
+        var extractedCSSText = "";
+        for (var i = 0; i < document.styleSheets.length; i++) {
+          var s = document.styleSheets[i];
+          try {
+              if(!s.cssRules) continue;
+          } catch( e ) {
+                if(e.name !== 'SecurityError') throw e; // for Firefox
+                continue;
+              }
+          var cssRules = s.cssRules;
+          for (var r = 0; r < cssRules.length; r++) {
+                    for(var q=0; q<selectorTextArr.length; q++){
+                        if (cssRules[r].selectorText!=undefined && cssRules[r].selectorText.includes(selectorTextArr[q]) )
+                            extractedCSSText += cssRules[r].cssText;
+                    }
+                }
+        }
+        return extractedCSSText;
+
+        function contains(str,arr) {
+          return arr.indexOf( str ) === -1 ? false : true;
+        }
+      }
+
+      function appendCSS( cssText, element ) {
+        var styleElement = document.createElement("style");
+        styleElement.setAttribute("type","text/css");
+        styleElement.innerHTML = cssText;
+        var refNode = element.hasChildNodes() ? element.children[0] : null;
+        element.insertBefore( styleElement, refNode );
+      }
+    }
+
+    // Function to export the current network view from an svg STRING to an svg image for download 
+    function svgString2Image( svgString, width, height, format, callback ) {
+      var format = format ? format : 'png';
+      var imgsrc = 'data:image/svg+xml;base64,'+ btoa( unescape( encodeURIComponent( svgString ) ) ); // Convert SVG string to data URL
+      var canvas = document.createElement("canvas");
+      var context = canvas.getContext("2d");
+      canvas.width = width;
+      canvas.height = height;
+      var image = new Image();
+      image.onload = function() {
+        context.fillStyle = "white";
+            context.fillRect ( 0, 0, width, height );
+        context.drawImage(image, 0, 0, width, height);
+
+        canvas.toBlob( function(blob) {
+          var filesize = Math.round( blob.length/1024 ) + ' KB';
+          if ( callback ) callback( blob, filesize );
+        });
+      };
+
+      image.src = imgsrc;
+    }
+
+    // Function to control the showing or arrows for directions in the network. Controlled by checkbox "Show directions"
+    function directionsSelected(selection){
+      if(selection!=undefined && selection===true ){
+        link.attr("class", link.layout.lineClass).attr("marker-end", link.layout.arrow_1).attr("marker-start", link.layout.arrow_2)
+      }else{
+        link.attr("class", link.layout.lineClass).attr("marker-end", '').attr("marker-start", '')
+      }
+    }
+
+    // Change length of links
+    // https://stackoverflow.com/questions/13165913/draw-an-arrow-between-two-circles/20909533#20909533
+    // // Define helper functions for vector math
+    // function length({x, y}) {
+    //     return Math.sqrt(x * x + y * y);
+    // }
+
+    // function sum({x: x1, y: y1}, {x: x2, y: y2}) {
+    //     return {x: x1 + x2, y: y1 + y2};
+    // }
+
+    // function diff({x: x1, y: y1}, {x: x2, y: y2}) {
+    //     return {x: x1 - x2, y: y1 - y2};
+    // }
+
+    // function prod({x, y}, scalar) {
+    //     return {x: x * scalar, y: y * scalar};
+    // }
+
+    // function div({x, y}, scalar) {
+    //     return {x: x / scalar, y: y / scalar};
+    // }
+
+    // function unit(vector) {
+    //     return div(vector, length(vector));
+    // }
+
+    // function scale(vector, scalar) {
+    //     return prod(unit(vector), scalar);
+    // }
+
+    // function free([coord1, coord2]) {
+    //     return diff(coord2, coord1);
+    // }
+
+
+    // Adjust link positions
+    // link.attr('x1', ({source, target}) => sum(source, scale(free([source, target]), getNodeSize(source))).x)
+    //  .attr('y1', ({source, target}) => sum(source, scale(free([source, target]),  getNodeSize(source))).y)
+    //  .attr('x2', ({source, target}) => diff(target, scale(free([source, target]),  getNodeSize(target))).x)
+    //  .attr('y2', ({source, target}) => diff(target, scale(free([source, target]),  getNodeSize(target))).y)
+
+    // Arrow heads
+    // https://stackoverflow.com/questions/74861668/d3-recalculate-arrowhead-position-based-on-node-size
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Here are functions handling mouseover/out for links and nodes in the network //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function clickNode(d){
+      document.getElementById('interactors-tab').click();
+      if (d.target){
+        var id = d.target.id.toString();
+        var n=d.target
+      }else{
+        var id = d.id;
+        var n=d
+      }  
+      document.getElementById('interactor_row_'+id).scrollIntoView({ behavior: 'smooth' });
+
+    }
+    // Function for link-click here. Doesnt work right nw as it cant expand hidden links AND there are two of each link so it doesnt know which one to scroll to :)
+    // function clickLink(d, l){
+    //   if (l.source.id!=undefined){
+    //     var idA=l.source.id
+    //     var idB = l.target.id
+    //   }else{
+    //     if (d==1){
+    //       var idB=l.source
+    //       var idA = l.target
+    //     }else{
+    //       var idA=l.source
+    //       var idB = l.target
+    //     } 
+    //   }
+    //   document.getElementById('interactions-tab').click();
+    //   document.getElementById('interactions_row_'+idA+"_"+idB).scrollIntoView({ behavior: 'smooth' });
+
+    // }
+    // When mouseover/hoover over node
+    function mouseOver(d) {
+      if (d.target){
+        var id = d.target.id.toString();
+        var n=d.target
+      }else{
+        var id = d.id;
+        var n=d
+      }   
+      let nodesToHide=[]
+      node.transition(500).style('opacity', o => {
+        let intersectionTissue=[]
+        if(o.tissues && o.tissues.length>0){
+          intersectionTissue = o.tissues.filter(x => tissueFilter.includes(x));
+        }
+        let intersectionPathway = []
+        if(o.pathwayIds && o.pathwayIds.length>0){
+          intersectionPathway = o.pathwayIds.filter(x => pathwayFilter.includes(x));
+        }
+        if ( (tissueFilter.length<1 && pathwayFilter.length<1 ) || intersectionTissue.length>0 || intersectionPathway.length>0  ){
+            if ( o.id === id ){
+              return 1.0;}
+            else if ( o.linkedNodes.includes(id)){
+              return 0.6;}
+            else{
+              return 0.2;}
+          }else{
+            nodesToHide.push(o);
+            return 0;
+          }  
+      });
+      link.transition(500).style('opacity', o => {
+        if (nodesToHide.includes(o.source) || nodesToHide.includes(o.target)){return 0}
+        else{return (o.source.id === id || o.target.id === id ? 1 : 0.2);}    
+      });
+      texts.transition(500).style('opacity', o =>{
+        if (nodesToHide.includes(o) ){return 0.0}
+        else{ 
+          if ( o.id === id ){return 1.0;}
+          else if ( o.linkedNodes.includes(id)){return 0.6;}
+          else{return 0.2;}
+        }
+      })
+    }
+
+    // When mouseover/hoover over a link
+    function mouseOverLink(d, l) {
+      if (l.source.id!=undefined){
+        var idA=l.source.id
+        var idB = l.target.id
+      }else{
+        if (d==1){
+          var idB=l.source
+          var idA = l.target
+        }else{
+          var idA=l.source
+          var idB = l.target
+        } 
+      }
+      let nodesToHide=[]
+      node.transition(500).style('opacity', o => {
+        let intersectionTissue=[]
+        if(o.tissues && o.tissues.length>0){
+          intersectionTissue = o.tissues.filter(x => tissueFilter.includes(x));
+        }
+        let intersectionPathway = []
+        if(o.pathwayIds && o.pathwayIds.length>0){
+          intersectionPathway = o.pathwayIds.filter(x => pathwayFilter.includes(x));
+        }
+        if ( (tissueFilter.length<1 && pathwayFilter.length<1 ) || intersectionTissue.length>0 || intersectionPathway.length>0  ){
+          if ( ( o.id === idA || o.id === idB) ){return 1.0;}
+          else{return 0.2;}
+        }else{nodesToHide.push(o);return 0; }
+      });
+      link.transition(500).style('opacity', o => {
+        if (nodesToHide.includes(o.source) || nodesToHide.includes(o.target)){return 0}
+        else{return ((o.source.id === idA && o.target.id === idB) || (o.source.id === idB && o.target.id === idA) ? 1 : 0.2);}    
+      });
+      texts.transition(500).style('opacity', o => {
+        if (nodesToHide.includes(o) ){return 0.0}
+        else{ 
+          if ( ( o.id === idA || o.id === idB) ){return 1.0;}
+          else{return 0.2;}
+        }
+      });
+    }
+
+    // When mouseout/cursor leaves a node (return all opacity to normal again)
+    function mouseOut(d) {
+      filterNetworkByTissuePathway()
+    };
+
+    // When mouseout/cursor leaves a link (return all opacity to normal again)
+    function mouseOutLink(d,l) {
+      filterNetworkByTissuePathway()
+    }
+
+    // Filter the network by a pathway (hide nodes not in the pathway)
+    function filterNetworkByPathway(pathway,remove){
+      if (pathway==""){
+        pathwayFilter.splice(pathwayFilter.indexOf(remove), 1);
+      }else{
+        pathwayFilter.push(pathway)
+      }
+      filterNetworkByTissuePathway()
+    }
+
+    // Filter the network by a tissue (hide nodes not in the tissue)
+    function filterNetworkByTissue(tissue,remove){
+      if (tissue==""){
+        tissueFilter.splice(tissueFilter.indexOf(remove), 1);
+      }else{
+        tissueFilter.push(parseInt(tissue))
+      }
+      filterNetworkByTissuePathway()
+    }
+
+    // Helper function to handle combinations of filters for filtering and on mouseout (to retain info on which nodes/links to hide)
+    function filterNetworkByTissuePathway(){
+      let nodesToHide=[]
+      node.transition(500).style('opacity', o => {
+        let intersectionTissue=[]
+        if(o.tissues && o.tissues.length>0){
+          intersectionTissue = o.tissues.filter(x => tissueFilter.includes(x));
+        }
+        let intersectionPathway = []
+        if(o.pathwayIds && o.pathwayIds.length>0){
+          intersectionPathway = o.pathwayIds.filter(x => pathwayFilter.includes(x));
+        }
+        if ( (tissueFilter.length<1 && pathwayFilter.length<1 ) || intersectionTissue.length>0 || intersectionPathway.length>0  ){
+          return 1.0;}
+        else{nodesToHide.push(o); 
+          return 0.0;}
+      });
+      link.transition(500).style('opacity', o => {
+        if (nodesToHide.includes(o.source) || nodesToHide.includes(o.target)){return 0}
+        else{return 0.6}
+      });
+      texts.transition(500).style('opacity', o =>{
+        if (nodesToHide.includes(o) ){return 0.0}
+        else{return 1.0}
+      })
+    }
+
+    function handleAccordionToggle(tagID) {
+      var accordionButton = document.querySelector(`[data-bs-target="#${tagID}"]`);
+      var isExpanded = accordionButton.getAttribute('aria-expanded') === 'true';
+
+      if (isExpanded) {
+          changeViewSize(tagID,'EXPANDED')
+      } else {
+          changeViewSize(tagID,'COLLAPSED')
+      }
+    }
+
+
+    // Function to change the view size of the network, toggles so that clicking the same button again makes it larger if it was small and vice versa
+    // TODO: add height:auto or fit-content to containerForNetworkView when expanded
+    function changeViewSize(tagID,action){
+      if (networkViewSize=="small" && tagID=="fullscreenButton"){
+        networkViewSize="large"
+        $('#containerForNetworkView').addClass('h-100').removeClass('h-50');
+        $('#fullscreenButton').html("<i class='bi bi-fullscreen-exit'>"); 
+      } else if (networkViewSize=="large" && tagID=="fullscreenButton"){
+        networkViewSize="small"
+        $('#containerForNetworkView').addClass('h-50').removeClass('h-100');
+        $('#fullscreenButton').html("<i class='bi bi-arrows-fullscreen'>"); 
+        var accordionButton = document.querySelector(`[data-bs-target="#networkInfo"]`);
+        if (accordionButton && accordionButton.getAttribute('aria-expanded') === 'false') {
+            accordionButton.click(); // Simulate a click to expand the accordion
+        }
+      } else if (["small","large"].includes(networkViewSize) && ["networkAppearance", "filterNetwork", "networkDownload"].includes(tagID) && action=="EXPANDED"){
+        networkViewSize="large"
+        $('#containerForNetworkView').addClass('h-100').removeClass('h-50');
+        $('#fullscreenButton').html("<i class='bi bi-fullscreen-exit'>"); 
+      } else if (["small","large"].includes(networkViewSize) && ["networkAppearance", "filterNetwork", "networkDownload"].includes(tagID) && action=="COLLAPSED"){
+        networkViewSize="small"
+        $('#containerForNetworkView').addClass('h-50').removeClass('h-100');
+        $('#fullscreenButton').html("<i class='bi bi-arrows-fullscreen'>"); 
+      }else{
+        networkViewSize="small"
+        $('#containerForNetworkView').addClass('h-50').removeClass('h-100');
+        $('#fullscreenButton').html("<i class='bi bi-arrows-fullscreen'>"); 
+      }
+      const width = document.getElementById('network_display').clientWidth;
+      const height = document.getElementById('network_display').clientHeight;
+      // Assign the SVG container with new properites.
+      const svg = d3.select("#networkSVG")
+          .attr("width", width)
+          .attr("height", height)
+      simulation.alpha(1).restart();
+    }
+
+    // Function to change the color of all nodes, triggered by the color picker for all nodes color
+    function changeGlobalNodeColor(){
+      var newColor = $("#globalNodeColor").val()
+      for (var i = 0; i < nodes.length; i++) {
+        setNodeColor(nodes[i].id, newColor)
+        }
+      
+      defaultNodeColor = newColor
+      for (var i = 0; i < allPatwhayIDs.length; i++) {
+        pathwayColor_dict[allPatwhayIDs[i]]=defaultNodeColor
+      }
+
+      for (var i = 0; i < allTissueIDs.length; i++) {
+        tissueColor_dict[allTissueIDs[i]]=defaultNodeColor
+      }
+    }
+    
+    // Function to change the color of all links, triggered by the color picker for all edges color
+    function changeGlobalEdgeColor(){
+      var newColor = $("#globalEdgeColor").val()
+      link.attr("stroke", d => newColor)
+      for (var l in links){
+        $('#'+l+'arrowhead_1').children().attr('fill', newColor)
+        $('#'+l+'arrowhead_2').children().attr('fill', newColor)
+      }
+    }
+
+    function changeGlobalTextColor(){
+      var newColor = $("#globalTextColor").val()
+      for (var i = 0; i < nodes.length; i++) {
+        texts.style("fill", d => newColor)
+        }
+      defaultTextColor = newColor
+    }
+
+    // Function to update color and recreate badges
+    function updateColorAndBadges(attribute) {
+		if (attribute=='colorPathway'){
+			// Remove existing badges
+			pathwayColor_badges.forEach(function(pathwayID) {
+				$("#"+pathwayID).remove();
+			});
+			
+			// Recreate badges with updated colors from pathwayColor_dict
+      var existingHtml = $('#pathwayColorBadge');
+			pathwayColor_badges.forEach(function(pathwayID) {
+        var pathwayName = pathwayLookup[pathwayID].split("(pathwayID:")[0]
+        var selected_color = pathwayColor_dict[pathwayID];
+        var newHtml = "<div class='badge bg-secondary filter_badge text-wrap' id='"+pathwayID+"'>"+pathwayName+" <input type='color' class='colorPicker colorPickerPathway' id='pathwayColor_"+pathwayID+"' name='colorPicker' value='"+selected_color+"' onChange='changeNodeColorByAttribute(\""+pathwayID+"\",\"PATHWAYCOLOR\")'> <button type='button' class='btn-close btn-close-white' aria-label='Close' onclick='removeBadge(\""+pathwayID+"\",\"PATHWAYCOLOR\")'> </button> </div>"
+        existingHtml.append(newHtml);
+			});
+		} else if(attribute=='colorTissue'){
+			// Remove existing badges
+			tissueColor_badges.forEach(function(tissueID) {
+				$("#"+tissueID).remove();
+			});
+			
+			// Recreate badges with updated colors from pathwayColor_dict
+      var existingHtml = $('#tissueColorBadge');
+			tissueColor_badges.forEach(function(tissueID) {
+        var tissueName = tissueLookup[tissueID].split("(tissueID:")[0]
+        var selected_color = tissueColor_dict[tissueID];
+        var newHtml = "<div class='badge bg-secondary filter_badge text-wrap' id='"+tissueID+"'>"+tissueName+"  <input type='color' class='colorPicker colorPickerTissue' id='tissueColor_"+tissueID+"' name='colorPicker' value='"+selected_color+"' onChange='changeNodeColorByAttribute(\""+tissueID+"\",\"TISSUECOLOR\")'> <button type='button' class='btn-close btn-close-white' aria-label='Close' onclick='removeBadge(\""+tissueID+"\",\"TISSUECOLOR\")'> </button></div>"
+        existingHtml.append(newHtml);
+			});
+		}
+	}
+
+    // Function to change the color of a node, triggered by the color picker for either pathway or individual node
+    function changeNodeColorByAttribute(attributeID,attribute){
+      if (attribute=='PATHWAYCOLOR'){
+        var newColor = $("#pathwayColor_"+attributeID).val()
+
+        setNodeColorByAttribute(attributeID, newColor, attribute)
+        pathwayColor_dict[attributeID]=newColor
+      }else if(attribute=='TISSUECOLOR'){
+        var newColor = $("#tissueColor_"+attributeID).val()
+        setNodeColorByAttribute(attributeID, newColor, attribute)
+        tissueColor_dict[attributeID]=newColor
+      }
+		
+	}
+
+  function collectEnrichments(){
+    if (startedCollectingEnrichment=='False'){
+      startedCollectingEnrichment='True'
+      getEnrichments()
+    }
+  };
+
+
+  }
+
+</script>
+
+{% include "./footer.html" %}

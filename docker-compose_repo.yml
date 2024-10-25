@@ -1,0 +1,96 @@
+
+# services:
+#   db:
+#     image: postgres:14.1-alpine
+#     environment:
+#       - POSTGRES_USER=FunCoup
+#       - POSTGRES_PASSWORD=######### #edit with database PSW
+#       - POSTGRES_DB=FunCoup
+#     ports:
+#       - 127.0.0.1:5432:5432
+#     volumes:
+#       - ./database:/var/lib/postgresql/data
+#     command: >
+#       -c work_mem=256MB
+#       -c maintenance_work_mem=256MB
+#       -c max_wal_size=2GB
+#       -c max_connections=500
+#     logging:
+#       options:
+#         max-size: 1g
+#     shm_size: 100g
+
+# volumes:
+#   db:
+#   database:
+
+################################################################################
+#### Use these configurations for the production server, comment all above #####
+################################################################################
+
+services:
+  funcoup:
+    restart: always
+    build: ./FunCoup
+    command: gunicorn FunCoup.wsgi:application --bind 0.0.0.0:8000 --timeout 600 --workers 5
+    expose:
+      - 8000
+    volumes:
+      - ./FunCoup/website/static/:/usr/src/app/website/static/
+    logging:
+      options:
+        max-size: 1g
+    networks:
+      - funcoup6_nw
+
+  nginx:
+    restart: always
+    build: ./nginx
+    ports:
+      - 80:80
+      - 8000:8000
+      - 443:443
+    depends_on:
+      - funcoup
+    volumes:
+      - ./FunCoup/website/static/:/home/app/web/staticfiles
+      - ./saved_certs/:/etc/letsencrypt/
+      - ./nginx/:/etc/nginx/conf.d/
+    logging:
+      options:
+        max-size: 1g
+    networks:
+      - funcoup6_nw
+
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=FunCoup
+      - POSTGRES_PASSWORD=######### #edit with database PSW
+      - POSTGRES_DB=FunCoup
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+    expose:
+      - 5432
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    command: >
+      -c work_mem=256MB
+      -c maintenance_work_mem=256MB
+      -c max_wal_size=2GB
+      -c max_connections=500
+    logging:
+      options:
+        max-size: 1g
+    networks:
+      - funcoup6_nw
+
+volumes:
+  db:
+  database:
+  certbot:
+  nginx:
+
+networks:
+  funcoup6_nw:
+    external: true

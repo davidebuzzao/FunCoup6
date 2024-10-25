@@ -1,0 +1,28 @@
+KDE:
+  nSample: [100,1000000]
+  outliersPercentiles: [1,99]
+  Bandwidth: 'bw_dynamic'
+  R2: 0.9
+  poly_degree: [2,4]
+  VisualizeLLR: True
+
+OrthologyTransfer:
+  Evidences: ['GIN', 'GRG', 'MEX', 'MIR', 'PEX', 'PIN', 'TFB']
+
+Redundancy:
+  Evidences: ['MEX']
+  Method: 'spearman'
+  MinSize: 100
+  Alpha: 0.7
+
+Network: 
+  nSample: [100,1000000]
+  R2: 0.9
+  MinPPV: 0.85
+  VisualizePPV: True
+  Bootstrapping: [True,30]
+  GoldStandard_order: ['Complex', 'Metabolic', 'Operon', 'PPI', 'Regulatory', 'Signaling']
+  GoldStandard_directed: [False,False,False,False,True,False]
+  Evidence_order: ['DOM', 'GIN', 'GRG', 'MEX', 'MIR', 'PEX', 'PHP', 'PIN', 'SCL', 'TFB']
+  Evidence_directed: [False,False,True,False,False,False,False,False,False,False]
+  Species_order: ['3702','224308','9913','6239','9615','7719','7227','44689','7955','83333','9031','9606','243232','10090','83332','39947','36329','10116','559292','284812','9823','273057']

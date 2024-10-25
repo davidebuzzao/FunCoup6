@@ -1,0 +1,45 @@
+Species	pTOT	PPV
+A.thaliana	0.9792335018303666	Evidence-based
+A.thaliana	0.02076649816963333	Gold Standard-based
+B.subtilis	0.88224824226319	Evidence-based
+B.subtilis	0.11775175773681006	Gold Standard-based
+B.taurus	0.9825836030384744	Evidence-based
+B.taurus	0.01741639696152577	Gold Standard-based
+C.elegans	0.989488526136672	Evidence-based
+C.elegans	0.01051147386332801	Gold Standard-based
+C.familiaris	0.987909426792382	Evidence-based
+C.familiaris	0.01209057320761786	Gold Standard-based
+C.intestinalis	0.993639785089236	Evidence-based
+C.intestinalis	0.00636021491076415	Gold Standard-based
+D.melanogaster	0.9576570288184656	Evidence-based
+D.melanogaster	0.04234297118153447	Gold Standard-based
+D.discoideum	0.9812342870143904	Evidence-based
+D.discoideum	0.01876571298560946	Gold Standard-based
+D.rerio	0.941088655121522	Evidence-based
+D.rerio	0.05891134487847804	Gold Standard-based
+E.coli	0.7619751614887726	Evidence-based
+E.coli	0.23802483851122733	Gold Standard-based
+G.gallus	0.9888989924264154	Evidence-based
+G.gallus	0.0111010075735846	Gold Standard-based
+H.sapiens	0.8364532195562474	Evidence-based
+H.sapiens	0.1635467804437526	Gold Standard-based
+M.jannaschii	0.6203472641782027	Evidence-based
+M.jannaschii	0.37965273582179726	Gold Standard-based
+M.musculus	0.91050538685725535	Evidence-based
+M.musculus	0.08949461314274469	Gold Standard-based
+M.tuberculosis	0.7784864917839992	Evidence-based
+M.tuberculosis	0.22151350821600077	Gold Standard-based
+O.sativa	0.9849918600479106	Evidence-based
+O.sativa	0.01500813995208941	Gold Standard-based
+P.falciparum	0.9774554498092864	Evidence-based
+P.falciparum	0.0225445501907136	Gold Standard-based
+R.norvegicus	0.9284440765799432	Evidence-based
+R.norvegicus	0.07155592342005668	Gold Standard-based
+S.cerevisiae	0.6647394774589263	Evidence-based
+S.cerevisiae	0.33526052254107375	Gold Standard-based
+S.pombe	0.931942243759422	Evidence-based
+S.pombe	0.06805775624057811	Gold Standard-based
+S.scrofa	0.9759912548077484	Evidence-based
+S.scrofa	0.02400874519225164	Gold Standard-based
+S.solfataricus	0.6834006508266153	Evidence-based
+S.solfataricus	0.3165993491733848	Gold Standard-based

@@ -1,0 +1,703 @@
+/* Here, all FC-specific CSS is declared (for all pages) */
+
+body {
+	background-color: #f8f9fa !important;
+  }
+.main-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	/* justify-content: center; */
+	height: 100vh;
+	margin-top: 50px; /* Adjust this value as needed */
+  }
+  .btn-primary {
+	color: #fff;
+	background-color: #2f85ba !important;
+	border-color: #2f85ba !important;
+  }
+  
+  .text-center {
+	margin-top: 50px; 
+  }
+  .search-box {
+	width: 100%;
+	max-width: 900px;
+	padding: 2rem;
+	background: #fff;
+	border-radius: 5px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	margin-top: 20px; /* Adjust this value as needed */
+  }
+  h1 {
+	font-family: Helvetica, sans-serif;
+	font-weight: 400;
+	font-size: 64px;
+	line-height: 76.8px;
+	text-align: center;
+  }
+  .form-control-gene {
+	font-family: 'Helvetica Neue', Helvetica, sans-serif !important;
+	font-weight: 400 !important;
+	font-size: 14px !important;
+	line-height: 21px !important;
+	width: 100% !important;
+  }
+
+  .form-check-input:checked {
+	background-color: #2f85ba !important;
+	border-color: #2f85ba !important;
+	}
+
+  .smaller-image {
+	max-width: 100px;
+	height: auto;
+  }
+
+  .nav-tabs .nav-link {
+	color: #6c757d!important;
+  }
+
+  .nav-tabs .nav-link.active {
+	background-color: #ffffff!important;
+	color: #495057!important;
+  }
+
+  .nav-tabs .nav-link:hover {
+	color: #495057!important;
+  }
+
+  .custom-nav .nav-link {
+    color: #495057 !important; /* Text color for inactive links */
+    background-color: transparent !important; /* Background color for inactive links */
+    border: 1px solid transparent !important; /* Border for inactive links */
+    border-radius: 0.25rem !important; /* Rounded corners for inactive links */
+}
+
+.custom-nav .nav-link.active {
+    color: #495057 !important; /* Text color when active */
+    background-color: #fff !important; /* Background color when active */
+    border: 1px solid #d4d4d4 !important; /* Border color when active */
+    border-radius: 0.25rem !important; /* Rounded corners for active link */
+}
+
+.custom-nav .nav-link:hover {
+    color: #495057 !important; /* Text color on hover */
+    background-color: #e9ecef !important; /* Background color on hover */
+    border: 1px solid #dee2e6 !important; /* Border color on hover */
+    border-radius: 0.25rem !important; /* Rounded corners on hover */
+}
+
+
+  .accordion-button {
+	color: #495057 !important;
+  }
+
+  .accordion-button:not(.collapsed) {
+    color: #000 !important;
+	}	
+
+  #search_button {
+	width: 100%;
+	background-color: #2f85ba !important;
+	border-color: #2f85ba !important;
+	/* color: white; */
+  }
+
+  #search_button:hover, #search_button:focus {
+	background-color: #2f85ba !important;
+	border-color: #2f85ba !important;
+	/* color: white; */
+  }
+
+  /* Aligning the advanced search section to the left and removing background */
+  #advancedSearchAccordion .accordion-item {
+	background-color: transparent;
+	border: none;
+  }
+
+  /* Update blue details to #2f85ba */
+  .advanced-search .slider::-webkit-slider-thumb,
+  .advanced-search .slider::-moz-range-thumb,
+  .advanced-search .slider::-ms-thumb {
+	background-color: #2f85ba !important;
+  }
+
+  .advanced-search input[type="checkbox"]:checked + label:before,
+  .advanced-search input[type="radio"]:checked + label:before {
+	background-color: #2f85ba !important;
+	border-color: #2f85ba !important;
+  }
+
+  /* Add space between search button and text above */
+  #search_buttonAdvanced {
+	width: 100%;
+	background-color: #2f85ba !important;
+	border-color: #2f85ba !important;
+	margin-top: 20px; /* Adjust the value as needed */
+  }
+
+  #search_buttonAdvanced:hover, #search_buttonAdvanced:focus {
+	background-color: #2f85ba !important;
+	border-color: #2f85ba !important;
+  }
+
+  /* Autocomplete items container */
+  .autocomplete-items {
+	position: absolute;
+	border: 1px solid #d4d4d4;
+	border-top: none;
+	z-index: 99;
+	top: 100%;
+	left: 0;
+	right: 0;
+	max-height: 150px; /* Limit height */
+	overflow-y: auto; /* Enable scrolling */
+  }
+
+  /* Autocomplete items */
+  .autocomplete-items div {
+	font-family: 'Helvetica Neue', Helvetica, sans-serif !important;
+	font-weight: 400 !important;
+	font-size: 14px !important;
+	line-height: 21px !important;
+	width: 100% !important;
+	padding: 10px;
+	cursor: pointer;
+	background-color: #fff;
+	border-bottom: 1px solid #d4d4d4;
+  }
+
+  /* Autocomplete items when hovered */
+  .autocomplete-items div:hover {
+	background-color: #e9e9e9;
+  }
+
+  /* Autocomplete items active state */
+  .autocomplete-active {
+	background-color: DodgerBlue !important;
+	color: #ffffff;
+  }
+
+  textarea {
+	/* resize: none; */
+	/* overflow: hidden; */
+	min-height: 100px;
+	/* max-height: 100px; */
+  }
+
+  .form-range::-webkit-slider-thumb {
+	background: #2f85ba !important;
+  }
+
+  input[type='radio'] {
+	accent-color: #2f85ba !important;
+  }
+  .linkprimary {
+	color: #6c757d !important; /* Default link color */
+	text-decoration: none;
+  }
+  .linkprimary:hover {
+	color: #495057!important; /* Hover color */
+	text-decoration: none; /* Remove underline on hover */
+  }
+
+  a {
+	color: #6c757d !important; /* Default link color */
+	text-decoration: none !important;
+  }
+
+  a:hover {
+	color: #495057!important; /* Hover color */
+	text-decoration: none ; /* Remove underline on hover */
+  }
+
+/* Add this CSS to your stylesheet */
+.dynamic-width-container {
+	width: 100%;  /* Set width to 100% to make it responsive */
+	max-width: 700px;  /* Set the initial maximum width to 700px */
+	margin: 0 auto;  /* Center the content */
+	padding: 0 15px;  /* Optional: Add some padding for better appearance */
+}
+
+/* Media query to adjust width for smaller screens */
+@media (max-width: 768px) {
+	.dynamic-width-container {
+		max-width: 100%;  /* Allow the container to take full width on smaller screens */
+	}
+}
+
+.pointer{
+	cursor:pointer;
+}
+
+.rotatedRow{
+    font-size: smaller;
+	width:100%;
+}
+
+.flex{
+	display: flex!important;
+	justify-content:space-between!important;
+	align-items: stretch!important;
+	padding-left:0px!important;
+	padding-right:5px!important;
+}
+
+.flex_center{
+	display: flex!important;
+	justify-content:center!important;
+}
+
+.width1{
+	width:1%;
+}
+.width4{
+	max-width:4.98%!important;
+	width:4.98%!important;
+	padding:0px!important;
+}
+
+.width6{
+	max-width:7%!important;
+	width:7%!important;
+	padding:0px!important;
+}
+
+.width8{
+	max-width:9.96%!important;
+	width:9.96%!important;
+	padding:0px!important;
+}
+.width10{
+	max-width:10%!important;
+	width:10%!important;
+	padding:0px!important;
+}
+.width10_label{
+	max-width:11%!important;
+	width:11%!important;
+	padding:0px!important;
+}
+.width12{
+	max-width:11.5%!important;
+	width:11.5%!important;
+	padding:0px!important;
+}
+.width25{
+	padding-right:0px!important;
+	max-width:20%!important;
+	width:20%!important;
+}
+.width40{
+	padding-right:0px!important;
+	padding-left:20px!important;
+	max-width:45%!important;
+	width:45%!important;
+}
+
+.mw20{
+	max-width:15%!important;
+	padding-left:3px!important;
+	padding-right:0px!important;
+}
+.mw40{
+	max-width:55%!important;
+	padding-left:3px!important;
+	padding-right:0px!important;
+}
+.mw80p{
+	min-width:80px;
+}
+
+.height95vh{
+	height:95vh;
+}
+
+.verticaltext {
+	display: flex!important;
+	justify-content:space-between!important;
+	align-items: stretch!important;
+	max-width:20px!important;
+	min-width:8px!important;
+	width:17px!important;
+	-webkit-transform: rotate(-90deg);
+	-moz-transform: rotate(-90deg);
+	-ms-transform: rotate(-90deg);
+	-o-transform: rotate(-90deg);
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}
+
+.colorBox{
+	margin:1px;
+	border: solid 1px #676767;
+	display: flex!important;
+	width:18px;
+	max-width:30px!important;
+	min-width:7px!important;
+	height:100%;
+}
+
+.colorBoxChunky{
+	margin:1px;
+	border: solid 2.5px #676767;
+	display: flex!important;
+	width:18px;
+	max-width:30px!important;
+	min-width:7px!important;
+	height:100%;
+}
+
+.colorBox_highlyPos{
+	margin-bottom:-18px;
+	border: solid 9px #45b584;
+	width:18px;
+}
+.colorBox_pos{
+	margin-bottom:-18px;
+	border: solid 9px #a9ddc6;
+	width:18px;
+}
+.colorBox_zero{
+	margin-bottom:-18px;
+	border: solid 9px #FFFFFF;
+	width:18px;
+}
+.colorBox_neg{
+	margin-bottom:-18px;
+	border: solid 9px #fbd4d4;
+	width:18px;
+}
+.colorBox_highlyNeg{
+	margin-bottom:-18px;
+	border: solid 9px #f05d5e;
+	width:18px;
+}
+.colorBox_knownThis{
+	margin-bottom:-18px;
+	border: solid 9px #f4d35e;
+	width:18px;
+}
+
+.colorBox_knownOther{
+	margin-bottom:-18px;
+	border: solid 9px #faf0ca;
+	width:18px;
+}
+
+.colorBox_inferredPPV,
+.colorBox_computedPPV {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 5px; /* Adjust margin between boxes */
+}
+
+.colorBox_inferredPPV {
+    background-color: #f4d35e; /* Set background color */
+    border: solid 3px #676767; /* Set border */
+}
+
+.colorBox_computedPPV {
+    background-color: #f4d35e; /* Set background color */
+    border: solid 1px #676767; /* Set border */
+}
+
+.accordion{
+	--bs-accordion-btn-focus-border-color: white!important;
+	--bs-accordion-active-bg: white!important;
+	--bs-accordion-btn-focus-box-shadow: 0 0 0 0!important;
+}
+
+.InteractorAccordion{
+	--bs-accordion-btn-focus-border-color: #cfd6e0!important;
+	--bs-accordion-active-bg: #cfd6e0!important;
+	--bs-accordion-btn-focus-box-shadow: 0 0 0 0!important;
+}
+
+.nav-link_network{
+	color: black!important;
+}
+
+.interactionsAccordion{
+	max-width: 1700px;
+	width:100%
+}
+
+.networkTabContainer{
+	display: flex!important;
+	justify-content:center;
+	width:100%
+}
+
+.whiteTooltip{
+  --bs-tooltip-bg: rgb(235, 235, 235)!important;
+  --bs-tooltip-color: black!important;
+}
+
+.help{
+	height: 80vh;
+    margin-top: 0.5rem;
+    overflow: auto;
+}
+
+.networkTabsContent{
+	height: calc(100% - 40px)!important;
+}
+
+/* .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    background-color: #f0f3f7!important;
+} */
+
+.networkTabContainer_search{
+	background-color:white;
+	display: flex!important;
+	justify-content:center;
+	width:100%
+}
+
+.accordionButton{
+	--bs-btn-padding-y: 0rem!important; 
+	--bs-btn-padding-x: .2rem!important; 
+	--bs-btn-font-size:.7rem!important;
+	margin-left: 10px;
+}
+
+.autocomplete {
+	position: relative;
+}
+
+/* .autocomplete-items {
+	position: absolute;
+	border: 2px solid #d4d4d4;
+	border-bottom: none;
+	border-top: none;
+	z-index: 99;
+	top: 100%;
+	left: 0;
+	right: 0;
+	max-height: 50vh;
+	overflow: scroll;
+}
+
+.autocomplete-items div {
+	font-size: 14px;
+	padding: 10px;
+	cursor: pointer;
+	background-color: #fff;
+	border-bottom: 1px solid #d4d4d4;
+}
+
+.autocomplete-items div:hover {
+	background-color: #e9e9e9;
+}
+
+.autocomplete-active {
+	background-color: #6c757d !important;
+	color: #ffffff;
+} */
+
+.text-right {
+    text-align: right;
+	font-size: larger;
+	padding-top: 15px;
+}
+
+.form-range{
+	width:80%!important;
+	height: 0.6rem!important;
+}
+
+.form-range-wide{
+	width:100%!important;
+}
+
+.sliderValue{
+	margin-left:10px;
+}
+
+.input_badge{
+	position: relative;
+	z-index: 1;
+	top: -30px;
+	left: 5px;
+	margin-top: -50px;
+}
+
+.filter_badge{
+	margin-bottom:5px!important;
+}
+
+.code{
+	background-color: #e9e9e9;
+	padding-bottom: 1px;
+	padding-top: 10px;
+	padding-left: 10px;
+	font-size: small;
+}
+
+.white{
+	color:white
+}
+
+.pl10{
+	float:right;
+	padding-right:40px
+}
+
+.pieChart{
+	margin-left:80px;
+}
+
+.detailsClose{
+	float:right;
+}
+
+.details-open {
+    color: grey; /* Change the text color to grey */
+    /* You can add more styling as needed */
+}
+
+.fullscreenButton{
+	position: absolute;
+	margin-top: 15px;
+	border-color: #dadada!important;
+}
+
+.enrichmentSpinner{
+	margin-left: 50%;
+	justify-content: center;
+}
+.enrichmentText{
+	margin-top: 40px;
+}
+
+.downloadEATsvButton{
+	float:right;
+	margin-left: 10px;
+}
+
+.pathbixButton{
+	float:right;
+}
+
+.notBold{
+	font-weight: normal!important;
+}
+.centerText{
+	text-align: center;
+}
+
+.enrichmentContent{
+	display: flex !important;
+	justify-content: center;
+	width:100%;
+}
+
+.colorPicker{
+	height: 15px;
+	padding: 0px;
+	border: none;
+	width:15px
+}   
+
+.floatright{
+	float:right;
+}
+
+.exampleMargin{
+    margin-right: 1%;
+}
+
+.bg-image {
+	position: relative;
+}
+  
+.bg-image::before {
+content: "";
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-image: url('../website/images/FC6_index2.png'); /* Replace with your image path */
+background-size: contain;
+/* filter: blur(5px); Apply blur effect */
+z-index: -1; /* Place the blurred background behind other content */
+background-repeat: no-repeat;
+}
+
+.text-overlay {
+position: relative;
+z-index: 1; /* Ensure the text appears on top of the blurred background */
+color: rgb(0, 0, 0); /* Text color */
+padding: 0px; /* Adjust padding as needed */
+}
+
+/* Overlay - hidden by default */
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.7); /* Semi-transparent background */
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Ensure it's on top */
+}
+
+/* Dot Spinner */
+.dot-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dot-spinner div {
+    width: 20px;
+    height: 20px;
+    background-color: #000; /* White color for visibility , otherwise #2f85ba !important;*/
+    border-radius: 100%;
+    margin: 3px;
+    animation: dot-bounce 1.2s infinite ease-in-out both;
+}
+
+.dot-spinner div:nth-child(1) {
+    animation-delay: -0.24s;
+}
+
+.dot-spinner div:nth-child(2) {
+    animation-delay: -0.12s;
+}
+
+.dot-spinner div:nth-child(3) {
+    animation-delay: 0s;
+}
+
+/* Bounce animation for the dots */
+@keyframes dot-bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+/* Specific styles for the no-padding-table class */
+.no-padding-table th,
+.no-padding-table td {
+    padding: 0 !important;
+}
+
+/* Optional: If you want to remove spacing between cells */
+.no-padding-table {
+    border-spacing: 0;
+}
+
+/* Max-width class */
+.max-width-40rem {
+	max-width: 40rem !important;
+	padding: 0; /* Ensure consistent padding */
+  }

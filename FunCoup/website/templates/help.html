@@ -1,0 +1,357 @@
+{% include "./header.html" %}
+{% load static %}
+
+<!-- Here is all information shown in the help page. NOTE: should be updated with new images and text -->
+<div class="container pt-5">
+    <h2>Help</h2>
+    <nav id="navbar-example2" class="navbar bg-light px-3 mb-3">
+        <ul class="nav nav-pills custom-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="#scrollspyHeading1">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#scrollspyHeading2">Tutorials</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#scrollspyHeading3">Evidence types</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#scrollspyHeading4">Gold Standards</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#scrollspyHeading5">Search options</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#scrollspyHeading6">Result views</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#scrollspyHeading7">FAQ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#scrollspyHeading8">Citation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#scrollspyHeading9">License</a>
+          </li>
+        </ul>
+      </nav>
+      <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" class="help bg-light p-3 rounded-2" tabindex="0">
+        <h4 id="scrollspyHeading1">About FunCoup</h4>
+        <p>The name FunCoup [fən kəp] stands for <u>fun</u>ctional <u>coup</u>ling. FunCoup is a framework to
+            infer genome-wide functional couplings in 22 model organisms. Functional coupling, or functional association,
+            is an unspecific form of association that encompasses direct physical interaction but also more general types
+            of direct or indirect interaction like regulatory interaction or participation in the same process or pathway.</p>
+            <h6><a id="Framework">Framework</a></h6>
+            <p>Briefly, the FunCoup framework integrates 10 different evidence types derived from high-throughput
+            genomics and proteomics data in a naive Bayesian integration procedure. The evidence types are discussed
+            in more detail <a href="#EvidenceTypes">below</a>. Evidence is transferred across species using orthology
+            assignments from <a href="https://inparanoidb.sbc.su.se" target="_blank">InParanoiDB 9</a>.</p>
+            <p>The naive Bayesian integration combines the likelihood for coupling and no coupling in the form
+            of log-likelihood ratios (LLRs) for all data sets. LLRs for data of the same type are corrected to
+            account for cross-data redundancies. The sum of LLRs for a gene pair is called the final Bayesian
+            score (FBS) and expresses the amount of support the data shows for a coupling. To simplify the
+            interpretation the FBS is transformed into a precision score (PPV) that ranges from 0.5 to 1.
+            For more details, please have a look at the FunCoup <a href="#Citation">publications</a>.</p>
+            <h6><a id="Networks">Networks</a></h6>
+            <p>FunCoup differentiates between six different classes of functional couplings: complex co-membership (Complex), co-membership in a metabolic pathway (Metabolic), 
+            shared operon (Operon), protein-protein interaction (PPI), gene regulation (Regulatory), and co-membership in a signaling pathway (Signaling). 
+            For each class a separate network is created. Additionally a composite or summary network
+            is created by taking the strongest coupling from the different classes for each pair.</p>
+        <h4 class="pt-5" id="scrollspyHeading2">Tutorials</h4>
+            <p>A playlist of video tutorials with an introduction and demos on FunCoup can be found on <a href="https://www.youtube.com/watch?v=h7eNJdVE_ng&amp;list=PLKW3Bz4GDx92rWCnxalEAXgzh0UyE4c1c" target="_blank">YouTube</a>.</p>
+            <p>Additional resources, e.g. slides and an R-notebook on offline usage, can be found in <a href="https://drive.google.com/drive/folders/1NemDjJoPnmaAZI57p7BfQieCZnyMR7HK?usp=sharing" target="_blank">Google Drive</a>.</p>
+        <h4 class="pt-5" id="scrollspyHeading3">Evidence Types</h4>
+            <p>Evidences are the signals that support or contradict the presence of functional coupling. Typically some kind of
+            scoring function is used to convert raw data into evidence. For a complete list of all data see <a href="/statistics/#data">here</a>.
+            FunCoup integrates 10 different evidence types listed below.</p>
+            
+            <!-- Evidence description -->
+            <h6><a id="DOM">Domain interactions (DOM)</a></h6>
+            <p>Domain-domain interaction (DOM) uses pre-computed scores from <a href="http://sonnhammer.sbc.su.se/download/UniDomInt">UniDomInt</a> (v1.0), which reflect support from various databases. 
+              Domain interactions are mapped to protein pairs using <a href="https://www.ebi.ac.uk/interpro/entry/pfam/">Pfam</a> (v35.0). 
+              DOM is calculated as the ratio of scored domain pairs (m) to all possible pairs (N), multiplied by the average score and weighted by the log of the sum of the interacting domains' degrees. 
+              N is the product of Pfam domains in A and B.</p>
+            
+            <h6><a id="GIN">Genetic interaction profile similarity (GIN)</a></h6>
+            <p>Genetic Interaction (GIN) is measured using Spearman correlation of genetic interaction profiles, based on <a href="https://thebiogrid.org">BioGRID</a> (v4.4.219). 
+              A gene's interaction profile shows how it interacts with other genes, and similar profiles between two genes suggest they may be functionally related.</p>
+            
+            <h6><a id="GRG"> Gene Regulation (GRG)</a></h6>
+            <p>Gene Regulation (GRG) data was extracted from <a href="https://www.encodeproject.org/" target="_blank">ENCODE</a> (v131.0) using BED narrowPeak files for human, mouse, worm, and fruit fly. 
+              We used enrichment scores from IDR-thresholded peaks processed by standard ENCODE or Robert-Waterston pipelines. 
+              After normalizing datasets to account for variability, they were intersected, and redundant interactions were ranked by enrichment score. 
+              We used genomes GRCh38 and mm10 from ENCODE, and ce11 and dm6 from Ensembl, to annotate genes.</p>
+
+            <h6><a id="MEX">mRNA co-expression (MEX)</a></h6>
+            <p>mRNA co-Expression (MEX) was calculated using Spearman correlation of expression profiles from healthy samples, based on data from <a href="http://www.ncbi.nlm.nih.gov/geo" target="_blank">GEO</a> and <a href="https://www.ebi.ac.uk/gxa" target="_blank">Expression Atlas</a>. 
+              Only pairs with absolute correlation above 0.5 were retained and normalized. Homolog pairs were excluded, identified in FunCoup 6 using DIAMOND with an E-value below 0.001.</p>
+            
+            <h6><a id="MIR">Co-miRNA regulation by shared miRNA targeting (MIR)</a></h6>
+            <p>MicroRNA Regulation (MIR) was calculated using the Jaccard index for microRNAs regulating each protein pair, with only positive values retained.</p>
+            
+            <h6><a id="PEX">Protein co-expression (PEX)</a></h6>
+            <p>Protein co-Expression (PEX) was measured using <a href="https://pax-db.org" target="_blank">PaxDB</a> (v5.0) mass spectrometry data in two ways: 
+              by correlating expression profiles across tissues and by calculating the Jaccard index for the top 25% of tissues where each protein pair is expressed.</p>
+            
+            <h6><a id="PHP">Phylogenetic profile similarity (PHP)</a></h6>
+            <p>Phylogenetic Profile Similarity (PHP) was evaluated using data from 640 species in <a href="https://inparanoidb.sbc.su.se" target="_blank">InParanoiDB 9</a>. 
+              A distance matrix and orthophylogram were built using orthologs from these species. Each protein in FunCoup species received a profile where the presence or absence of an ortholog was marked as 1 or 0.
+              PHP scores were calculated using a neighbor-joining tree rooted at the species of interest. The score is based on the logarithmic ratio between a 'positive score' (branch length of species with orthologs for both proteins) and 
+              a 'negative score' (branch length of species with an ortholog for only one protein), with deeper conservation indicating stronger functional association.</p>
+            
+            <h6><a id="PIN">Physical Interaction (PIN)</a></h6>
+            <p>Physical Interaction (PIN) was calculated as the weighted average of the number of publications listed in <a href="http://irefindex.org" target="_blank">iRefIndex</a> (v2022-08), 
+              with weights based on the logarithm of findings in each publication, adjusted by the log sum of the degree of connections. 
+              The degree of connections represents the total number of interactions protein A has in IrefIndex, helping to increase specificity by accounting for proteins with many interactions.</p>
+            
+            <h6><a id="SCL">Sub-cellular co-localization (SCL)</a></h6>
+            <p>SubCellular Localization (SCL) was measured by calculating the semantic similarity of <a href="http://www.geneontology.org" target="_blank">Gene Ontology (GO)</a> keywords (v2023-03). 
+              Similarity scores were computed using the Wang et al. graph-based method, which leverages the topology of GO's Directed Acyclic Graph structures.</p>
+
+            <h6><a id="TFB">Transcription Factor Binding profile similarity (TFB)</a></h6>
+            <p>Transcription Factor Binding profile (TFB) was measured using the Jaccard index for transcription factors binding to each protein pair, with only positive values retained. 
+              Data was sourced from <a href="https://tflink.net" target="_blank">TFLink</a> (v1.0).</p>
+            
+        <h4 class="pt-5" id="scrollspyHeading4">Gold Standards</h4>
+            <!-- Gold Standard description -->
+            <h6><a id="Complex">Complex</a></h6>
+            <p>Gold standard couplings for protein complexes were collected from <a href="https://irefindex.vib.be/wiki/index.php/iRefIndex" target="_blank">iRefIndex</a> (v2022-08), 
+              <a href="https://www.ebi.ac.uk/complexportal/home" target="_blank">ComplexPortal</a> (v2023-06) and <a href="http://mips.helmholtz-muenchen.de/corum/#download" target="_blank">Corum</a> (v2022-11). 
+              The protein complexes from iRefIndex were filtered to exclude very large complexes including large parts of the proteome.</p>
+
+            <h6><a id="Metabolic">Metabolic</a></h6>
+            <p>Metabolic gold standard links were created as fully connected networks between proteins that are part of <a href="https://www.genome.jp/kegg/" target="_blank">KEGG</a> (v101.0) metabolic pathways.</p>
+
+            <h6><a id="Operon">Operon</a></h6>
+            <p>Shared operons gold standard links were collected from <a href="http://operondb.ccb.jhu.edu/cgi-bin/operons.cgi" target="_blank">OperonDB</a> (v2022-02). 
+              The operon gold standard is available for E. coli, C. elegans and  B. subtilis. </p>
+
+            <h6><a id="PPI">PPI</a></h6>
+            <p>Protein-protein interaction (PPI) gold standard links were taken from <a href="https://irefindex.vib.be/wiki/index.php/iRefIndex" target="_blank">iRefIndex</a> (v2022-08) 
+              and must be supported by at least two experiments or included in another gold standard. To reduce noise, we focused on physical interactions, limiting each experiment to a maximum of 100 interactions.</p>
+
+            <h6><a id="Regulatory">Regulatory</a></h6>
+            <p>Regulatory gold standard links were added using data from <a href="https://www.grnpedia.org/trrust/" target="_blank"> TRRUST</a> (v2.0), <a href="https://regnetworkweb.org" target="_blank">RegNetwork</a> (v2019-04), 
+              <a href="https://regulondb.ccg.unam.mx" target="_blank">RegulonDB</a> (v2022-12), and <a href="http://www.yeastract.com" target="_blank">Yeastract</a> (v2022) for S. cerevisiae
+               to capture transcription factor interactions for H. sapiens, M. musculus, E.coli, and S. cerevisiae. For human and mouse links, we used the union of TRRUST and RegNetwork.</p>
+              
+            <h6><a id="Signaling">Signaling</a></h6>
+            <p>Signaling gold standard links were created as fully connected networks between proteins that are part of <a href="https://www.genome.jp/kegg/" target="_blank">KEGG</a> (v101.0) signaling pathways.</p>
+
+        <h4 class="pt-5" id="scrollspyHeading5">Search Options</h4>
+            <h6><a id="Search">Normal search</a></h6>
+            <p>The default query retrieves the most strongly connected genes to one or multiple genes from the selected species network.
+            The query searches for exact matches of symbols or identifiers and supports a variety  of different identifier types including
+            Ensembl gene, protein, and transcript IDs, NCBI gene IDs, RefSeq IDs and UniProt IDs.
+            For a search with multiple genes the identifiers should be separated by spaces.
+            To get more control and alternative query options expand the advanced search options.</p>
+            <a  rel="group" href="{% static 'website/images/docs/DefaultSearch.png' %}" title="Search"><img src="{% static 'website/images/docs/DefaultSearch.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            <h6><a id="Search">SARS_CoV-2 search</a></h6>
+                <p>To simplify searching in the virus-host network for SARS-CoV-2 and Homo sapiens, we have introduced a specific button just for this purpose. The button can be found beneath the regular search-button, and
+                clicking it will pre-fill a query with the SARS-CoV-2 genes, a confidence cutoff of 0.3, 50 nodes per expansion step, and then perform the search.  </p>
+            <a  rel="group" href="{% static 'website/images/docs/covidExample.png' %}" title="Covid search"><img src="{% static 'website/images/docs/covidExample.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            <h6><a id="Search">Orthology-transferred species search</a></h6>
+                <p>In FunCoup 6, networks for all 640 species in <a href="https://inparanoidb.sbc.su.se" target="_blank">InParanoiDB 9</a> are generated by transferring links from the closest species in the 22 primary FunCoup networks, 
+                  using orthologs from InParanoid. NCBI taxonomy lineage information, or the shortest distance in an orthophylogram for InParanoiDB, was used to find the closest FunCoup species. 
+                  Queries for the 618 transferred species can only be performed using UniProt IDs.</p>
+            <a  rel="group" href="{% static 'website/images/docs/orthologyTransferredSearch.png' %}" title="Orthology-transferred species search"><img src="{% static 'website/images/docs/orthologyTransferredSearch.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            <h6><a id="AdvancedSearch">Advanced search</a></h6>
+            <p>There are 3 different categories of advanced search options. The first category "Sub-networks" controls how the subnetwork around
+            the query is retrieved. The sub-network retrieval starts from the query genes and adds the top most strongly connected genes which have
+            at least one connection to the query that is stronger than the given link confidence threshold, finally all links between the retrieved gene set
+            that are stronger than the threshold are added. Four parameters can be adjusted for this expansion: the link confidence threshold, the direction confidence threshold, 
+            the number of most strongly connected genes that should be added, and how many expansion steps should be performed. If more than one expansion step (the default)
+            is used, genes that were retrieved in the previous iteration are used as a query set in the next iteration and the process is repeated. If 0 expansion steps are selected only
+            links between the query genes are retrieved and no genes are added.</p>
+
+            <p>There are 4 different algorithms to expand the network that differ in how multiple query genes are handled. 
+            The simplest algorithm "Genes as group" retrieves the N strongest interactors to any of the query genes. 
+            If the option "prioritize common neighbors" is activated, all links to all query genes are considered and genes 
+            that are most strongly linked to many query genes are prioritized. Otherwise only the strongest link to a query gene counts.</p>
+            <a  rel="group" href="{% static 'website/images/docs/groupsearch_AdvancedSearch.png' %}" title="Group gene search"><img src="{% static 'website/images/docs/groupsearch_AdvancedSearch.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            <p>The option "Each gene independently" is used to treat the query genes as independent and retrieve the N interactors for every query gene.</p>
+            <a  rel="group" href="{% static 'website/images/docs/indipendentsearch_AdvancedSearch.png' %}" title="Independent gene search"><img src="{% static 'website/images/docs/indipendentsearch_AdvancedSearch.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            </p><h6><a id="MaxLink">MaxLink search</a></h6>
+            <p>The MaxLink search provides an alternative to the standard search. MaxLink has been successfully applied to predict novel cancer genes and was
+            first described in <a href="https://pubmed.ncbi.nlm.nih.gov/19246318/">Network-based Identification of Novel Cancer Genes</a> (Östlund et al. 2010).
+            It is meant to be used with a long list of related query genes and retrieves genes that are signifcantly stronger connected to the query
+            than expected by chance. Four parameters can be adjusted for this expansion: the link confidence threshold, the direction confidence threshold, 
+            the cutoff used for the hypergeometric test of the candidate proteins (0.05 by default), and the number of retrieved candidates proteins. 
+            
+            </p>
+            <a  rel="group" href="{% static 'website/images/docs/maxlinksearch_AdvancedSearch.png' %}" title="MaxLink search"><img src="{% static 'website/images/docs/maxlinksearch_AdvancedSearch.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            </p><h6><a id="TOPAS">TOPAS search</a></h6>
+            <p>The TOPAS search is designed for detecting modules within networks. It is meant to be used with a long list 
+              of related query genes and has proven effective in identifying biologically relevant disease modules, as described in 
+              <a href="https://pubmed.ncbi.nlm.nih.gov/36458021/">TOPAS, a network-based approach to detect disease modules in a top-down fashion</a> (Buzzao et al. 2022).
+              Three parameters can be adjusted for this expansion: the link confidence threshold, the direction confidence threshold, 
+              and the number of potential connector(s) in a shortest path between any two of seeds. 
+            </p>
+            <a  rel="group" href="{% static 'website/images/docs/topassearch_AdvancedSearch.png' %}" title="TOPAS search"><img src="{% static 'website/images/docs/topassearch_AdvancedSearch.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            </p><h6><a id="ComparativeIntactomics">The Comparative Intactomics search</a></h6>
+            <p>The next advanced search option tab allows you to run a comparative query across the networks of multiple species. This query retrieves the orthologs to
+            the query genes and the sub-networks around them that maximizes the number of conserved links. If the toggle "Use species-specific evidence only" is checked,
+            the search requires sufficient species-specific evidence (lowering the link confidence cutoff is recommended in this case). If this option
+            is not checked orthology transfer might led to spurious sub-networks conservation. When the "Align orthologs only" is checked, only query network orthologs are  
+            fetched, otherwise each species network is independently queried using orthologs from the original query.</p>
+            <a  rel="group" href="{% static 'website/images/docs/comparativeInteractomics_AdvancedSearch.png' %}" title="Comparative query"><img src="{% static 'website/images/docs/comparativeInteractomics_AdvancedSearch.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            </p><h6><a id="Restrictions">Search with restrictions</a></h6>
+            <p>The next tab allows to restrict the search to one specific functional coupling class, 
+              at 3 different levels: Gold Standard, Evidence or Genes. </p>
+            <p>Restrictions at Gold Standard level allows to visualize subnetworks as the result of the combination of all Gold Standards (by default), 
+              or of one Gold Standard at a time. 
+            <a  rel="group" href="{% static 'website/images/docs/GoldStandardRestriction_AdvancedSearch.png' %}" title="Evidence restriction"><img src="{% static 'website/images/docs/GoldStandardRestriction_AdvancedSearch.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            <p>Restrictions at Evidence level allows to visualize subnetworks as the result of the combination of all Evidences from all species (by default), 
+              or choose the combination of evidence and species that you prefer. In this case, the confidence values are recomputed (lowering the link confidence cutoff is recommended).
+            <a  rel="group" href="{% static 'website/images/docs/EvidenceRestriction_AdvancedSearch.png' %}" title="Evidence restriction"><img src="{% static 'website/images/docs/EvidenceRestriction_AdvancedSearch.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+            
+            <p>Restrictions at Genes allows to visualize subnetworks as the result of the combination of all genes (by default), 
+              or of the genes with one selectable pathway or tissue annotation.</p>
+            <a  rel="group" href="{% static 'website/images/docs/GenesRestriction_AdvancedSearch.png' %}" title="Relational query"><img src="{% static 'website/images/docs/GenesRestriction_AdvancedSearch.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+            
+            <p>It is possible to combine search options from different tabs whenever this is sensible.
+          
+            <p>To resolve ambiguities in gene names, we perform a database search to identify any unmatched or ambiguous genes. 
+              Users can then review and select the correct genes on an intermediate page.</p>
+              <a  rel="group" href="{% static 'website/images/docs/ambigousMapping.png' %}" title="Ambigous mapping redirection for MIR gene"><img src="{% static 'website/images/docs/ambigousMapping.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+                
+
+        <h4 class="pt-5" id="scrollspyHeading6">Results Views</h4>
+            <h6><a id="Network">Network</a></h6>
+            <p>The network view displays the retrieved sub-network as a graph. 
+              By default the viewer shows a summary network with the links from the strongest coupling class for each gene pair. </p>
+
+            <a rel="group" href="{% static 'website/images/docs/NetworkView.png' %}" title="Subnetwork of JUN"><img  src="{% static 'website/images/docs/NetworkView.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            <p>The menu box on the left is grouped in four sections; Network Information, Filter Network, Network appearance and Download.
+            The Network information section displays the name of the species included in your search, as well as the color of that species nodes.
+            It also displyas the total number of genes and links within the shown subnetwork. </p>
+
+            <a rel="group" href="{% static 'website/images/docs/comparativeInteractomicsExample.png' %}" title="Comparative interactomics example"><img  src="{% static 'website/images/docs/comparativeInteractomicsExample.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+            
+            <h6><a id="Customization">Customization</a></h6>
+            
+            <p>The sections Filter Network and Network appearance have various options to manipulate the network. 
+              The Filter Network section may contain up to two options, Filter by Tissue and Filter by Pathway, when annotations are available.
+              By typing in the name of a tissue in the Filter by Tissue search box, you can select one or multiple tissues to filter the subnetworks. By default, no tissue is selected.
+              By typing in the name of a pathway in the Filter by Pathway search box, the viewer highlights participating nodes in the species color, and the nodes not included in the pathway turns gray.  
+            </p>
+            
+            <a  rel="group" href="{% static 'website/images/docs/NodeFilterExample.png' %}" title="Customizing subnetwork by filtering per Breast cancer pathway"><img  src="{% static 'website/images/docs/NodeFilterExample.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            <p>The Network appearance section is divided in Nodes and Links. 
+            In the Nodes subsection, the user can color all nodes at once, color by Tissue or Pathway, as well as vary node Label and node Size. 
+            Label: the default node label refers to the query identifier, but can be set to UniProt, Ensembl or NCBI ID. Additionally the label can also display species name, node degree or, if set to none, hide all the labels.
+            Size: Node sizes scale with node degrees to emphasize gene importance. This can be adapted to scale depending on the number of participating pathways or not scale at all if set to none.
+
+            In the Links subsection, the user can color all links at once, manipulate the node Charge, and the link Distance. 
+            If at least one link in the subnetwork has a direction, the Show directions checkbox will be selected by default. Uncheck the checkbox to hide the directions for the links.
+            Charge: This slider alters the tension between the nodes.</p>
+            <a  rel="group" href="{% static 'website/images/docs/NodeColorExample.png' %}" title="Customizing subnetwork by coloring per Breast cancer pathway"><img  src="{% static 'website/images/docs/NodeColorExample.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+            
+            <h6><a id="Interactions">Interactions</a></h6>
+
+            <p>The interactions view lists all interactions between subnetwork genes and shows details about how the links that have been derived. The
+            query genes are highlighted in bold. The green and red boxes represent positive and negative LLR for the different evidence types and species, hovering with the cursor over the box will display
+            the LLR. Known coupled pairs in gold standards are highlighted with a golden box. Initially only the strongest coupling class for each pair is shown.
+            Clicking anywhere on a row of the Interactions table will expand all other coupling classes for a pair.</p>
+            <a rel="group" href="{% static 'website/images/docs/InteractionTableDefault.png' %}" title="Interactions view show the couplings of JUN"><img src="{% static 'website/images/docs/InteractionTableDefault.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            By hovering anywhere on a row of the Interactions table, will highlight the link in the subnetwork viewer. 
+            <a  rel="group" href="{% static 'website/images/docs/LinkHovering.png' %}" title="Interactions view with focus on JUN - MAPK8"><img src="{% static 'website/images/docs/LinkHovering.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            <p>Clicking on the Details button will fade the main view and open up a side window displaying all evidence that led to the prediction. 
+              The evidence is sorted by decreasing LLR, and is first summarized into a bar chart, then listed with cross links to data sources. 
+              The last two columns show the type of the evidence and the species from which the evidence originates.</p>
+            <a  rel="group" href="{% static 'website/images/docs/LinkDetails.png' %}" title="Interactions view with details on JUN - MAPK8"><img src="{% static 'website/images/docs/LinkDetails.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            </p><h6><a id="Interactors">Interactors</a></h6>
+            <p>The interactors view gives an overview of all subnetwork genes. Query genes and other subnetwork genes are displayed in separete boxes.
+            For each gene the Gene Symbol, UniProt, Ensembl and NCBI IDs are shown. A dropdown-toggle button to the left of the gene name will allow you to use the gene
+            as a query or to add it to the current query. Following is a short description of the gene, and a box to color the node in the network.
+            By hovering anywhere on a row of the Interactors table, will highlight the node in the subnetwork viewer. 
+            
+            If the results of a <a href="#MaxLink">MaxLink search</a> are visualized,
+            the number of links to the query (MaxLink score) and the significance of the hit are shown in separate columns.</p>
+            <a  rel="group" href="{% static 'website/images/docs/NodeInteractors.png' %}" title="Interactor view showing the coupling partners of JUN."><img  src="{% static 'website/images/docs/NodeInteractors.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            </p><h6><a id="PathwayAnalysis">Pathway Enrichment Analysis</a></h6>
+            <p>Pathway enrichment analysis helps identify key biological processes impacted by gene sets. Our website offers three top-performing algorithms <a href="https://pubmed.ncbi.nlm.nih.gov/14519205/">EASE</a>, 
+              <a href="https://pubmed.ncbi.nlm.nih.gov/32788619/">ANUBIX</a>, and <a href="https://pubmed.ncbi.nlm.nih.gov/27664219/">BinoX</a>, selected from our latest benchmark paper <a href="https://pubmed.ncbi.nlm.nih.gov/38436561/">Benchmarking enrichment analysis methods with the disease pathway network</a> (Buzzao et al. 2024), 
+              to analyze gene overlap and network crosstalk with KEGG pathways using FunCoup subnetworks. A button is available to redirect searches to <a href="https://pathbix.sbc.su.se">PathBIX</a> for further exploration.</p>
+            <a  rel="group" href="{% static 'website/images/docs/EnrichmentAnalysis.png' %}" title="Pathway enrichment analysis of JUN subnetwork."><img  src="{% static 'website/images/docs/EnrichmentAnalysis.png' %}" alt=""  class="img-fluid" style="display: block; margin: 20px auto; max-width: 60%; padding-top: 20px; padding-bottom: 20px; text-align: center;"></img></a>
+
+            <h6><a id="Save">Download</a></h6>
+            <p>The "Download" view allows you to download the query subnetwork either in tab-separated values (TSV) file or portable network graphic (PNG).
+            TSV is a de facto standard for network data and can amongst other things be imported into <a href="http://cytoscape.org">Cytoscape</a>.
+            The different columns are: the proteinA,proteinB pair names, the Gold Standard network of origin, the PPV confidence score, the FBS max score, 
+            a binary [0,1] to identify if the pair is a Gold Standard link, and the direction if any. The links in the network file correspond
+            to the strongest coupling class. For a comparative query the networks for the different species are given in separate TSV files. 
+            If pathways or tissues are applied as filters or colors, they are also included as annotations. 
+            </p>
+            
+            <h6><a id="ModifySerach">Modify search</a></h6>
+            <p>The modify search view brings back the current search and allows you to change the keywords or to review and modify the parameters.</p>
+        
+            <h4 class="pt-5" id="scrollspyHeading7">FAQ</h4>
+            <h6>How do I cite FunCoup?</h6>
+            <p>Please cite the latest paper from <a href="#Citation">here</a> if you are using the database or if you want to refer to the FunCoup algorithm.
+            If you are using MaxLink please also cite <a href="http://www.ncbi.nlm.nih.gov/pubmed/19246318">Network-based Identification of Novel Cancer Genes</a> (Östlund 2010).</p>
+            <h6>How do I get only the couplings between my query genes</h6>
+            <p>By default the FunCoup search returns the subnetwork of your query and the strongest coupled genes to your query.
+            If you are only interested in links between your query genes, go into the <a href="#Advanced search">advanced search</a> options and set the "Expansion depth" on the "Sub-network selection" tab to 0.</p>
+            <h6>Where can I get help?</h6>
+            <p>See <a href="/contact/">here</a></p>
+            <h6>I know gene X and gene Y are coupled, why is there no link between them in FunCoup?</h6>
+            <p>Have you tried lowering the <a href="#Advanced search">confidence threshold</a>?
+            It should be noted that the main objective of FunCoup is the prediction of <emp>novel</emp> couplings. Furthermore, predictions are
+            just predicitions, so the networks are neither complete nor 60% accurate.</p>
+            <h6>Why is there no network for species X?</h6>
+            <p>Creating a functional coupling network for a species requires a lot of data including high-quality known couplings. The process involves a lot
+            of manual work and is computationally demanding, we therfore focus on a small number of well studied model organisms.</p>
+            <h6>Is the previous version of FunCoup still accessible?</h6>
+            <p>Yes, all previous versions of the networks can be downloaded from the "Archive" page.</p>
+        
+            <h4 class="pt-5" id="scrollspyHeading8">Citation</h4>
+            <p>
+            Buzzao, D., Persson, E., Guala, D., Sonnhammer, E, L. (2024)<br>
+            <a href="https://doi.org/10.1101/2024.09.13.612391">FunCoup 6: advancing functional association networks across species with directed links and improved user experience.</a><br>
+            bioRxiv.<br>
+            <br>
+            Persson, E., Castresana-Aguirre, M., Buzzao, D.,  Guala, D., Sonnhammer, E, L. (2021)<br>
+            <a href="https://doi.org/10.1016/j.jmb.2021.166835">FunCoup 5: Functional Association Networks in All Domains of Life, Supporting Directed Links and Tissue-Specificity.</a><br>
+            Journal of molecular biology, 433, 166835.<br>
+            <br>
+            Ogris, C., Guala, D., Kaduk, M., Sonnhammer, E. L. (2017)<br>
+            <a href="https://doi.org/10.1093/nar/gkx1138">FunCoup 4: new species, data, and visualization.</a><br>
+            Nucleic Acids Research 46 (Database issue), D601-D607.<br>
+            <br>
+            Schmitt, T., Ogris, C., &amp; Sonnhammer, E. L. (2013).<br>
+            <a href="http://www.ncbi.nlm.nih.gov/pubmed/24185702">FunCoup 3.0: database of genome-wide functional coupling networks.</a><br>
+            Nucleic Acids Research, 42(Database issue), D380-8<br>
+            <br>
+            Alexeyenko, A., Schmitt, T., Tjärnberg, A., Guala, D., Frings, O., &amp; Sonnhammer, E. L. (2012).<br>
+            <a href="http://www.ncbi.nlm.nih.gov/pubmed/22110034">Comparative interactomics with Funcoup 2.0.</a><br>
+            Nucleic Acids Research, 40(Database issue), D821-8<br>
+            <br>
+            Alexeyenko, A., &amp; Sonnhammer, E. L. (2009).<br>
+            <a href="http://www.ncbi.nlm.nih.gov/pubmed/19246318">Global networks of functional coupling in eukaryotes from comprehensive data integration.</a><br>
+            Genome Research, 19(6), 1107-1116<br>
+            </p>
+        <h4 class="pt-5" id="scrollspyHeading9">License</h4>
+            <p>
+                <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png"></a><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+      </div>
+</div>
+
+{% include "./footer.html" %}
